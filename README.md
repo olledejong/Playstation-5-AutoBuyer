@@ -1,5 +1,5 @@
 # StockNotifier
-Simple Python Playstation 5 stock notification script (The Netherlands only)
+Get notified via SMS and Windows Toast notification whenever there is a Playstation 5 in stock somewhere (Netherlands only).
 
 ## Get started
 
