@@ -66,10 +66,6 @@ locations = {
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/?utm_campaign=CPS&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
         'inStock': False,
         'text': "Uitverkocht"},
-    'WEHKAMP': {
-        'url': 'https://www.wehkamp.nl/inspiratie/brands/playstation5/?term=playstation%205',
-        'inStock': False,
-        'text': "PS5-header-uitverkocht"},
     'INTERTOYS Digital': {
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
         'inStock': False,
@@ -78,41 +74,44 @@ locations = {
 
 
 def main():
-    # loop through all sale locations
-    for place, info in locations.items():
-        # not known to be in stock, check if it is
-        if not info.get('inStock'):
-            try:
-                content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
-            except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
-                print("[=== ERROR ===] [=== {} ===]".format(place))
-                continue
-            # in stock, notify via SMS
-            if info.get('text') not in content:
-                print("[=== OMG, IN STOCK! ===] [=== {} ===]".format(place))
-                api.call('sms.send', 'SMS', phone, "IN STOCK GO-GO-GO {}. URL: {}".format(place, info.get('url')), None)
-                toaster.show_toast("IN STOCK AT [{}]".format(place))
-                # open webbrowser with in stock link
-                webbrowser.open(info.get('url'))  # Go to example.com
-                info['inStock'] = True
-            # not in stock
+    # loop infinitely, so that it can just be run in background
+    while True:
+        # loop through all sale locations
+        for place, info in locations.items():
+            # not known to be in stock, check if it is
+            if not info.get('inStock'):
+                try:
+                    content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
+                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
+                    print("[=== ERROR ===] [=== {} ===]".format(place))
+                    continue
+                # in stock, notify via SMS
+                if info.get('text') not in content:
+                    print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
+                    api.call('sms.send', 'SMS', phone,
+                             "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
+                    toaster.show_toast("IN STOCK AT [{}]".format(place))
+                    # open webbrowser with in stock link
+                    webbrowser.open(info.get('url'))  # Go to example.com
+                    info['inStock'] = True
+                # not in stock
+                else:
+                    print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
+            # in stock, check if it still is
             else:
-                print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
-        # in stock, check if it still is
-        else:
-            # not in stock anymore
-            if info.get('text') in requests.get(info.get('url')).content.decode('utf-8'):
-                print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place));
-                api.call('sms.send', 'SMS', phone, "NEW STOCK AT {} SOLD OUT. URL: {}".format(place, info.get('url')),
-                         None)
-                info['inStock'] = False
-            else:
-                print("[=== STILL IN STOCK! MOVE! ===] [=== {} ===]".format(place));
+                # not in stock anymore
+                if info.get('text') in requests.get(info.get('url')).content.decode('utf-8'):
+                    print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place));
+                    api.call('sms.send', 'SMS', phone,
+                             "NEW STOCK AT {} SOLD OUT. URL: {}".format(place, info.get('url')),
+                             None)
+                    info['inStock'] = False
+                else:
+                    print("[=== STILL IN STOCK! MOVE! ===] [=== {} ===]".format(place));
 
-    # wait 15 seconds, and check again by re-running function
-    print("\n Check over. Trying again in 30 seconds..\n")
-    time.sleep(30)
-    main()
+        # wait 15 seconds, and check again by re-running function
+        print("\n Check over. Trying again in 30 seconds..\n")
+        time.sleep(30)
 
 
 # start of program
