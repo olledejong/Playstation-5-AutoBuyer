@@ -3,6 +3,8 @@ Get notified via SMS and Windows Toast notification whenever there is a Playstat
 
 ## Get started
 
+Make sure you have a callr account with credit on it.  
+
 Install python, and make sure you check the box which says: "Add Python VERSION to PATH".  
 
 Required python packages (install via pip):  
