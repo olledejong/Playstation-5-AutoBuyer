@@ -6,6 +6,7 @@ import callr
 import configparser
 import time
 from win10toast import ToastNotifier
+from selenium import webdriver
 import webbrowser
 
 __author__ = "Olle de Jong"
@@ -88,8 +89,11 @@ def main():
                 # in stock, notify via SMS
                 if info.get('text') not in content:
                     print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
-                    api.call('sms.send', 'SMS', phone,
-                             "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
+                    try:
+                        api.call('sms.send', 'SMS', phone,
+                                 "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
+                    except (callr.CallrException, callr.CallrLocalException) as e:
+                        print("[=== ERROR ===] [=== SENDING SMS FAILED: CHECK ACCOUNT BALANCE ===]".format(place))
                     toaster.show_toast("IN STOCK AT [{}]".format(place))
                     # open webbrowser with in stock link
                     webbrowser.open(info.get('url'))  # Go to example.com
@@ -102,9 +106,12 @@ def main():
                 # not in stock anymore
                 if info.get('text') in requests.get(info.get('url')).content.decode('utf-8'):
                     print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place));
-                    api.call('sms.send', 'SMS', phone,
-                             "NEW STOCK AT {} SOLD OUT. URL: {}".format(place, info.get('url')),
-                             None)
+                    try:
+                        api.call('sms.send', 'SMS', phone,
+                                 "NEW STOCK AT {} SOLD OUT. URL: {}".format(place, info.get('url')),
+                                 None)
+                    except (callr.CallrException, callr.CallrLocalException) as e:
+                        print("[=== ERROR ===] [=== SENDING SMS FAILED: CHECK ACCOUNT BALANCE ===]".format(place))
                     info['inStock'] = False
                 else:
                     print("[=== STILL IN STOCK! MOVE! ===] [=== {} ===]".format(place));
