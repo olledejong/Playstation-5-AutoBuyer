@@ -19,12 +19,14 @@ __email__ = "olledejong@gmail.com"
 # = parse config =#
 parser = configparser.ConfigParser()
 parser.read("config.ini")
-phone = parser["personal info"]["phone"]
-username = parser["callr"]["username"]
-password = parser["callr"]["password"]
+phone = parser["info"]["phone"]
+username = parser["callr credentials"]["username"]
+password = parser["callr credentials"]["password"]
+smsEnabled = parser["info"]["sms notify enabled"]
 
 # = instantiate api =#
-api = callr.Api(username, password)
+if smsEnabled == "TRUE":
+    api = callr.Api(username, password)
 
 # = instantiate toast notifier =#
 toaster = ToastNotifier()
@@ -89,11 +91,14 @@ def main():
                 # in stock, notify via SMS
                 if info.get('outOfStockLabel') not in content:
                     print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
-                    try:
-                        api.call('sms.send', 'SMS', phone,
-                                 "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
-                    except (callr.CallrException, callr.CallrLocalException) as e:
-                        print("[=== ERROR ===] [=== SENDING SMS FAILED: ACCOUNT BALANCE MIGHT BE TOO LOW ===] [=== {} ===]".format(e))
+                    # if enabled, send sms
+                    if smsEnabled == "TRUE":
+                        try:
+                            api.call('sms.send', 'SMS', phone,
+                                     "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
+                        except (callr.CallrException, callr.CallrLocalException) as e:
+                            print("[=== ERROR ===] [=== SENDING SMS FAILED: ACCOUNT BALANCE MIGHT BE TOO LOW ===] ["
+                                  "=== {} ===]".format(e))
                     toaster.show_toast("IN STOCK AT [{}]".format(place))
                     # open webbrowser with in stock link
                     webbrowser.open(info.get('url'))  # Go to example.com
@@ -106,12 +111,14 @@ def main():
                 # not in stock anymore
                 if info.get('outOfStockLabel') in requests.get(info.get('url')).content.decode('utf-8'):
                     print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
-                    try:
-                        api.call('sms.send', 'SMS', phone,
-                                 "NEW STOCK AT {} SOLD OUT. URL: {}".format(place, info.get('url')),
-                                 None)
-                    except (callr.CallrException, callr.CallrLocalException) as e:
-                        print("[=== ERROR ===] [=== SENDING SMS FAILED: ACCOUNT BALANCE MIGHT BE TOO LOW ===] [=== {} ===]".format(e))
+                    if smsEnabled == "TRUE":
+                        try:
+                            api.call('sms.send', 'SMS', phone,
+                                     "NEW STOCK AT {} SOLD OUT. URL: {}".format(place, info.get('url')),
+                                     None)
+                        except (callr.CallrException, callr.CallrLocalException) as e:
+                            print("[=== ERROR ===] [=== SENDING SMS FAILED: ACCOUNT BALANCE MIGHT BE TOO LOW ===] ["
+                                  "=== {} ===]".format(e))
                     info['inStock'] = False
                 else:
                     print("[=== STILL IN STOCK! MOVE! ===] [=== {} ===]".format(place))
