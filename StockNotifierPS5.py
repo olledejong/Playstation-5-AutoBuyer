@@ -98,8 +98,8 @@ def main():
                         except (callr.CallrException, callr.CallrLocalException) as e:
                             print("[=== ERROR ===] [=== SENDING SMS FAILED: ACCOUNT BALANCE MIGHT BE TOO LOW ===] ["
                                   "=== {} ===]".format(e))
-                    notification.title = "Item might be in stock at:"
-                    notification.message = place
+                    notification.title = "Item might be in stock at:".format(place)
+                    notification.message = info.get('url')
                     notification.send()
                     # open webbrowser with in stock link
                     webbrowser.open(info.get('url'))
