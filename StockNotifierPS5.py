@@ -5,8 +5,7 @@ import requests
 import callr
 import configparser
 import time
-from win10toast import ToastNotifier
-from selenium import webdriver
+from notifypy import Notify
 import webbrowser
 
 __author__ = "Olle de Jong"
@@ -29,7 +28,7 @@ if smsEnabled == "TRUE":
     api = callr.Api(username, password)
 
 # = instantiate toast notifier =#
-toaster = ToastNotifier()
+notification = Notify()
 
 # = locations of probable sales =#
 locations = {
@@ -99,9 +98,11 @@ def main():
                         except (callr.CallrException, callr.CallrLocalException) as e:
                             print("[=== ERROR ===] [=== SENDING SMS FAILED: ACCOUNT BALANCE MIGHT BE TOO LOW ===] ["
                                   "=== {} ===]".format(e))
-                    toaster.show_toast("IN STOCK AT [{}]".format(place))
+                    notification.title = "Item might be in stock at:"
+                    notification.message = place
+                    notification.send()
                     # open webbrowser with in stock link
-                    webbrowser.open(info.get('url'))  # Go to example.com
+                    webbrowser.open(info.get('url'))
                     info['inStock'] = True
                 # not in stock
                 else:
@@ -111,6 +112,7 @@ def main():
                 # not in stock anymore
                 if info.get('outOfStockLabel') in requests.get(info.get('url')).content.decode('utf-8'):
                     print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
+                    # if enabled, send sms
                     if smsEnabled == "TRUE":
                         try:
                             api.call('sms.send', 'SMS', phone,
