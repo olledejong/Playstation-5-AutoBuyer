@@ -5,8 +5,10 @@ import requests
 import callr
 import configparser
 import time
-from selenium.webdriver import Chrome
+from time import sleep
+from msedge.selenium_tools import Edge, EdgeOptions
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from notifypy import Notify
@@ -20,12 +22,14 @@ __email__ = "olledejong@gmail.com"
 # = parse config =#
 parser = configparser.ConfigParser()
 parser.read("config.ini")
+edge_driver_path = parser.get("settings", "edge_driver_path")
 # ================= #
 # SETTING VARIABLES #
 # ================= #
 in_production = parser.getboolean("developer", "production")
 max_ordered_items = parser.getint("settings", "max_ordered_items")
 sms_enabled = parser.getboolean("settings", "sms_notify")
+do_notify = parser.getboolean("settings", "default_notify")
 buy_item_if_in_stock = parser.getboolean("settings", "buy_items")
 # =================== #
 # GENERAL CREDENTIALS #
@@ -37,9 +41,8 @@ callr_password = parser.get("callr credentials", "password")
 # ================= #
 # WEBSHOP VARIABLES #
 # ================= #
-coolblue_pw = parser.get("webshop account info", "coolblue_pw")
 bol_pw = parser.get("webshop account info", "bol_pw")
-
+coolblue_pw = parser.get("webshop account info", "coolblue_pw")
 
 # = instantiate api =#
 if sms_enabled:
@@ -55,9 +58,9 @@ locations = {
     #     'url': 'https://www.coolblue.nl/product/852042/apple-airpods-pro-met-draadloze-oplaadcase.html',
     #     'inStock': False,
     #     'outOfStockLabel': "Binnenkort leverbaar"},
-    'BOL.COM Cyberpunk 2077': {
+    'BOL.COM Corsair HS50': {
         'webshop': 'bol',
-        'url': 'https://www.bol.com/nl/p/cyberpunk-2077-day-one-edition-pc/9200000098089167/?s2a=#productTitle',
+        'url': 'https://www.bol.com/nl/p/corsair-hs50-pro-stereo-gaming-headset-carbon-zwart-ps5-pc-switch/9200000120229196/?bltgh=qD8SP3Gdn94yx1EYGbVGvA.1_28.29.ProductTitle',
         'inStock': False,
         'outOfStockLabel': "outofstock-buy-block"}
 
@@ -148,9 +151,10 @@ def main():
                             print("[=== ERROR ===] [=== SENDING SMS FAILED: ACCOUNT BALANCE MIGHT BE TOO LOW ===] ["
                                   "=== {} ===]".format(e))
                     # === NATIVE OS NOTIFICATION === #
-                    notification.title = "Item might be in stock at:".format(place)
-                    notification.message = info.get('url')
-                    notification.send()
+                    if do_notify:
+                        notification.title = "Item might be in stock at:".format(place)
+                        notification.message = info.get('url')
+                        notification.send()
                     # === IF ENABLED, BUY ITEM === #
                     if buy_item_if_in_stock:
                         # TODO add exception handling and only count +=1 if successful
@@ -190,16 +194,21 @@ def main():
 
 def delegate_buy_item(webshop, url):
     # = instantiate driver = #
-    driver = Chrome("/Users/olledejong/Documents/ChromeDriver/chromedriver")
+    options = EdgeOptions()
+    options.use_chromium = True
+    options.headless = False
+    driver = Edge(edge_driver_path, options=options)
     driver.get(url)
     # buy item
     if webshop == 'coolblue':
-        buy_item_at_coolblue(driver, url)
+        buy_item_at_coolblue(driver)
     elif webshop == 'bol':
-        buy_item_at_bol(driver, url)
+        buy_item_at_bol(driver)
+    else:
+        print("Auto-buy is not yet implemented for: {}".format(webshop))
 
 
-def buy_item_at_coolblue(driver, url):
+def buy_item_at_coolblue(driver):
     driver.find_element_by_name("accept_cookie").click()
     driver.find_element_by_class_name("js-coolbar-navigation-login-link").click()
     driver.implicitly_wait(1)
@@ -224,19 +233,24 @@ def buy_item_at_coolblue(driver, url):
     driver.close()
 
 
-def buy_item_at_bol(driver, url):
+def buy_item_at_bol(driver):
     # TODO Change to "Reserveer nu"?
     driver.find_element_by_xpath("//*[@id='modalWindow']/div[2]/div[2]/wsp-consent-modal/div[2]/div/div[1]/button").click()
-    driver.find_element_by_xpath("/html/body/div[1]/header/div/div[3]/a[1]").click()
-    # TODO Filling out the fields is not always working..
-    el1 = WebDriverWait(driver, 4).until(EC.visibility_of_element_located((By.CLASS_NAME, 'js_login_email')))
-    el1.send_keys(str(personal_email))
-    el2 = WebDriverWait(driver, 4).until(EC.visibility_of_element_located((By.ID, 'login_password')))
-    el2.send_keys(bol_pw)
-    # login button
-    driver.find_element_by_xpath('//*[@id="existinguser"]/fieldset/div[3]/input').click()
+    driver.find_element(By.LINK_TEXT, 'In winkelwagen').click()
+    driver.get('https://www.bol.com/nl/order/basket.html')
+    driver.find_element(By.ID, 'continue_ordering_top').click()
+    # Action Chain to login
+    actions = ActionChains(driver)
+    actions.pause(1).send_keys_to_element(driver.find_element(By.ID, 'login_email'), str(personal_email))\
+        .send_keys_to_element(driver.find_element(By.ID, 'login_password'), bol_pw)\
+        .click(driver.find_element(By.XPATH, '//*[@id="existinguser"]/fieldset/div[3]/input')).perform()
+    actions.reset_actions()
 
-    # TODO redirect to product page again
+    if in_production:
+        sleep(2)
+        driver.find_element(By.XPATH, '//*[@id="executepayment"]/form/div/button').click()
+    else:
+        print("Confirmation of order prevented. Application is not in production, see config.ini")
 
 
 # start of program
