@@ -214,21 +214,18 @@ def delegate_buy_item(webshop, url):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    # FILL YOUR PATH IN HERE
-    driver = Edge("your_path_to_msedgedriver.exe", options=options)
-    driver.get(url)
     # buy item
     if webshop == 'coolblue':
-        success = buy_item_at_coolblue(driver)
+        success = buy_item_at_coolblue(url)
     elif webshop == 'bol':
-        success = buy_item_at_bol(driver)
+        success = buy_item_at_bol(url)
     else:
         print("Auto-buy is not yet implemented for: {}".format(webshop))
         success = False
     return success
 
 
-def buy_item_at_coolblue(edge_driver):
+def buy_item_at_coolblue(url):
     """
     Function that will buy the item from the COOLBLUE webshop.
 
@@ -238,41 +235,46 @@ def buy_item_at_coolblue(edge_driver):
 
     :param edge_driver: the Microsoft Edge WebDriver
     """
+    # FILL YOUR PATH IN HERE
+    driver = Edge("your_path_to_msedgedriver.exe", options=options)
+    driver.get(url)
     try:
-        edge_driver.find_element_by_name("accept_cookie").click()
-        edge_driver.find_element_by_class_name("js-coolbar-navigation-login-link").click()
+        driver.find_element_by_name("accept_cookie").click()
+        driver.find_element_by_class_name("js-coolbar-navigation-login-link").click()
 
-        actions = ActionChains(edge_driver)
-        actions.pause(1).send_keys_to_element(edge_driver.find_element(By.ID, 'header_menu_emailaddress'), str(personal_email)) \
-            .send_keys_to_element(edge_driver.find_element(By.ID, 'header_menu_password'), coolblue_pw) \
-            .click(edge_driver.find_element(By.XPATH, '/html/body/header/div/div[4]/ul/li[2]/div/div/div[2]/div/form/div['
+        actions = ActionChains(driver)
+        actions.pause(1).send_keys_to_element(driver.find_element(By.ID, 'header_menu_emailaddress'), str(personal_email)) \
+            .send_keys_to_element(driver.find_element(By.ID, 'header_menu_password'), coolblue_pw) \
+            .click(driver.find_element(By.XPATH, '/html/body/header/div/div[4]/ul/li[2]/div/div/div[2]/div/form/div['
                                                  '2]/div[2]/div[2]/button')).perform()
         actions.reset_actions()
 
-        edge_driver.find_element_by_class_name("js-add-to-cart-button").click()
-        edge_driver.get("https://coolblue.nl/winkelmandje")
-        edge_driver.find_elements_by_xpath("//*[contains(text(), 'Ik ga bestellen')]")[1].click()
-        edge_driver.find_element_by_xpath("//*[@id='main-content']/div/div/div[11]/div[2]/div/div/div[2]/button").click()
-        edge_driver.implicitly_wait(1)
-        edge_driver.find_element_by_xpath("//*[@id='main-content']/div[3]/div[3]/button").click()
-        edge_driver.find_element_by_xpath("//*[@id='main-content']/div[7]/div[3]/div/div").click()
-        edge_driver.find_element_by_xpath(
+        driver.find_element_by_class_name("js-add-to-cart-button").click()
+        driver.get("https://coolblue.nl/winkelmandje")
+        driver.find_elements_by_xpath("//*[contains(text(), 'Ik ga bestellen')]")[1].click()
+        driver.find_element_by_xpath("//*[@id='main-content']/div/div/div[11]/div[2]/div/div/div[2]/button").click()
+        driver.implicitly_wait(1)
+        driver.find_element_by_xpath("//*[@id='main-content']/div[3]/div[3]/button").click()
+        driver.find_element_by_xpath("//*[@id='main-content']/div[7]/div[3]/div/div").click()
+        driver.find_element_by_xpath(
             "//*[@id='main-content']/div[7]/div[3]/div/div/div/div[2]/div/div[2]/div[2]/button").click()
         if in_production:
-            edge_driver.find_element_by_xpath("//*[@id='main-content']/div/div[4]/div/div/div[1]/div[2]/button").click()
+            driver.find_element_by_xpath("//*[@id='main-content']/div/div[4]/div/div/div[1]/div[2]/button").click()
         else:
             print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
         sleep(1)
-        edge_driver.close()
+        driver.close()
+        driver.quit()
         return True
     except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE) as e:
         sleep(1)
-        edge_driver.close()
+        driver.close()
+        driver.quit()
         print("Something went wrong while trying to order at BOL.COM")
         return False
 
 
-def buy_item_at_bol(edge_driver):
+def buy_item_at_bol(url):
     """
     Function that will buy the item from the BOL.COM webshop.
 
@@ -280,51 +282,54 @@ def buy_item_at_bol(edge_driver):
     a person would normally do. Only actually buys when application is in
     production. See the config.ini setting `production`.
 
-    :param edge_driver: the Microsoft Edge WebDriver
+    :param url:
     """
+    # FILL YOUR PATH IN HERE
+    driver = Edge("your_path_to_msedgedriver.exe", options=options)
+    driver.get(url)
     # try buying
     try:
-        edge_driver.find_element_by_xpath(
+        driver.find_element_by_xpath(
             "//*[@id='modalWindow']/div[2]/div[2]/wsp-consent-modal/div[2]/div/div[1]/button").click()
         # check whether button is preorder or regular order button
         try:
-            pre_order = edge_driver.find_element(By.LINK_TEXT, "//*[contains(text(),'Reserveer nu')]")
+            pre_order = driver.find_element(By.LINK_TEXT, "//*[contains(text(),'Reserveer nu')]")
             pre_order.click()
         except SE.NoSuchElementException as e:
-            edge_driver.find_element(By.LINK_TEXT, 'In winkelwagen').click()
-        edge_driver.get('https://www.bol.com/nl/order/basket.html')
+            driver.find_element(By.LINK_TEXT, 'In winkelwagen').click()
+        driver.get('https://www.bol.com/nl/order/basket.html')
         sleep(1)
-        edge_driver.find_element(By.ID, 'continue_ordering_bottom').click()
+        driver.find_element(By.ID, 'continue_ordering_bottom').click()
         # Action Chain to login
-        actions = ActionChains(edge_driver)
-        actions.pause(1).send_keys_to_element(edge_driver.find_element(By.ID, 'login_email'), str(personal_email))\
-            .send_keys_to_element(edge_driver.find_element(By.ID, 'login_password'), bol_pw)\
-            .click(edge_driver.find_element(By.XPATH, '//*[@id="existinguser"]/fieldset/div[3]/input')).perform()
+        actions = ActionChains(driver)
+        actions.pause(1).send_keys_to_element(driver.find_element(By.ID, 'login_email'), str(personal_email))\
+            .send_keys_to_element(driver.find_element(By.ID, 'login_password'), bol_pw)\
+            .click(driver.find_element(By.XPATH, '//*[@id="existinguser"]/fieldset/div[3]/input')).perform()
         actions.reset_actions()
 
         # ===================================== #
         # if other items in basket, remove them #
         # ===================================== #
-        current_url = edge_driver.current_url
+        current_url = driver.current_url
         if "basket.html" in current_url:
             # there is more than the auto-buy item in cart
             only_one_item = False
             while not only_one_item:
-                basket = edge_driver.find_elements(By.CLASS_NAME, 'shopping-cart__row')
+                basket = driver.find_elements(By.CLASS_NAME, 'shopping-cart__row')
                 for item in basket:
                     try:
                         title = item.find_element(By.CLASS_NAME, 'product-details__title').get_attribute('title')
                     except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
                         continue
-                    if "HS70" not in title:
+                    if "Playstation" not in title:
                         remove_url = item.find_element(By.ID, 'tst_remove_from_basket').get_attribute('href')
-                        edge_driver.get(remove_url)
-                        if len(edge_driver.find_elements(By.CLASS_NAME, 'shopping-cart__row')) == 2:
+                        driver.get(remove_url)
+                        if len(driver.find_elements(By.CLASS_NAME, 'shopping-cart__row')) == 2:
                             only_one_item = True
             # done, continue to checkout
             else:
                 sleep(5)
-                edge_driver.find_element(By.ID, 'continue_ordering_bottom').click()
+                driver.find_element(By.ID, 'continue_ordering_bottom').click()
 
         # ================================================== #
         # if app in production; complete order with afterpay #
@@ -332,19 +337,21 @@ def buy_item_at_bol(edge_driver):
         if in_production:
             sleep(2)
             try:
-                edge_driver.find_element(By.XPATH, '//*[@id="paymentsuggestions"]/div/div[2]/div/div/ul/div[1]/div').click()
+                driver.find_element(By.XPATH, '//*[@id="paymentsuggestions"]/div/div[2]/div/div/ul/div[1]/div').click()
             except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
                 print("Afterpay not available. Aborting..")
             # confirm
-            edge_driver.find_element(By.XPATH, '//*[@id="executepayment"]/form/div/button').click()
+            driver.find_element(By.XPATH, '//*[@id="executepayment"]/form/div/button').click()
         else:
             print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
         sleep(1)
-        edge_driver.close()
+        driver.close()
+        driver.quit()
         return True
     except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE) as e:
         sleep(1)
-        edge_driver.close()
+        driver.close()
+        driver.quit()
         print("Something went wrong while trying to order at BOL.COM")
         return False
 
