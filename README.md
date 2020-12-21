@@ -1,4 +1,4 @@
-# StockNotifier
+# Playstation5AutoBuyer
 A python notify / auto-buy application for the scarce Playstation 5 (Netherlands only).
 
 ## Get started
