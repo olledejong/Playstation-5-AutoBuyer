@@ -48,6 +48,13 @@ coolblue_pw = parser.get("webshop account info", "coolblue_pw")
 if sms_enabled:
     api = callr.Api(callr_username, callr_password)
 
+# = instantiate driver = #
+options = EdgeOptions()
+options.use_chromium = True
+options.headless = False
+# insert your own path to the webdriver here
+driver = Edge("path_to_edge_driver", options=options)
+
 # = instantiate toast notifier = #
 notification = Notify()
 
@@ -193,11 +200,6 @@ def main():
 
 
 def delegate_buy_item(webshop, url):
-    # = instantiate driver = #
-    options = EdgeOptions()
-    options.use_chromium = True
-    options.headless = False
-    driver = Edge(edge_driver_path, options=options)
     driver.get(url)
     # buy item
     if webshop == 'coolblue':
