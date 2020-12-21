@@ -116,9 +116,17 @@ locations = {
 
 
 def main():
-    # ====================== #
-    # count of ordered items #
-    # ====================== #
+    """
+    Function that loops until the 'desired amount of items bought' is reached.
+
+    While that amount is not reached, the function checks whether the item is
+    in stock for every webshop in the locations dictionary. Once an item is in
+    stock, it will proceed to buy this item by calling the `delegate_buy_item`
+    function. This function takes the name of the webshop and the url of the
+    item as its arguments.
+
+    Between every check, there is a wait of 30 seconds.
+    """
     ordered_items = 0
     # loop until desired amount of ordered items is reached
     while ordered_items < max_ordered_items:
@@ -199,6 +207,13 @@ def main():
 
 
 def delegate_buy_item(webshop, url):
+    """
+    Function that delegates the automatically ordering of items
+
+    First, the driver is instantiated. After that, based on the webshop its name
+    a function is called that executes the ordering sequence for that specific
+    webshop. That is, if it is implemented / possible for that webshop.
+    """
     # FILL YOUR PATH IN HERE
     driver = Edge("your_path_to_msedgedriver.exe", options=options)
     driver.get(url)
@@ -212,7 +227,15 @@ def delegate_buy_item(webshop, url):
 
 
 def buy_item_at_coolblue(edge_driver):
-    # change to prettier code
+    """
+    Function that will buy the item from the COOLBLUE webshop.
+
+    This is done by a sequence of interactions on the website, just like
+    a person would normally do. Only actually buys when application is in
+    production. See the config.ini setting `production`.
+
+    :param edge_driver: the Microsoft Edge WebDriver
+    """
     edge_driver.find_element_by_name("accept_cookie").click()
     edge_driver.find_element_by_class_name("js-coolbar-navigation-login-link").click()
 
@@ -241,9 +264,15 @@ def buy_item_at_coolblue(edge_driver):
 
 
 def buy_item_at_bol(edge_driver):
-    # ===================== #
-    # add to cart and login #
-    # ===================== #
+    """
+    Function that will buy the item from the BOL.COM webshop.
+
+    This is done by a sequence of interactions on the website, just like
+    a person would normally do. Only actually buys when application is in
+    production. See the config.ini setting `production`.
+
+    :param edge_driver: the Microsoft Edge WebDriver
+    """
     edge_driver.find_element_by_xpath(
         "//*[@id='modalWindow']/div[2]/div[2]/wsp-consent-modal/div[2]/div/div[1]/button").click()
     # check whether button is preorder or regular order button
