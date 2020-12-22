@@ -26,8 +26,8 @@ pip install callr
 ![version](./resources/edge_version.jpg)  
 
 Memorize the version number, and download the MicroSoft Edge WebDriver with the same version number [here](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/).
-Go ahead and store the driver executable anywhere you like and copy its absolute path. Now, in StockNotifierPS5.py, in the function delegate_buy_item(),
-paste your path inside the quotation marks (").
+Go ahead and store the driver executable anywhere you like and copy its absolute path. Now, in StockNotifierPS5.py, at the start of every buy_item_at function,
+paste your path inside the quotation marks (") where it tells you to do so.
 
 4) After that is done. Fill out the rest of your personal details in the config file.   
    You can also change the settings to your liking. 
