@@ -1,5 +1,7 @@
 # Playstation5AutoBuyer
-A python notify / auto-buy application for the scarce Playstation 5 (Netherlands only).
+A python notify / auto-buy application for the scarce Playstation 5 (Netherlands only).  
+
+Feel free to contact me on [twitter](https://twitter.com/dejongolle) if you have any questions. 
 
 ## Get started
 
