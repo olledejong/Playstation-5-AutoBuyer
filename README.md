@@ -50,4 +50,4 @@ or
 python3 StockNotifierPS5.py
 ```
 
-<a href="https://www.buymeacoffee.com/olledejong"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=olledejong&button_colour=008a73&font_colour=ffffff&font_family=Poppins&outline_colour=ffffff&coffee_colour=FFDD00" style="float: left; margin-top: 10px;"></a>
+<a href="https://www.buymeacoffee.com/olledejong"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=olledejong&button_colour=008a73&font_colour=ffffff&font_family=Poppins&outline_colour=ffffff&coffee_colour=FFDD00" style="float: right; margin-top: 20px !important;"></a>
