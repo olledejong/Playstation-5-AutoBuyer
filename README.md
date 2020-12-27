@@ -10,23 +10,26 @@ If you want to use the SMS notify feature, make sure you have a [callr](https://
 1) Install python, and make sure you check the box which says: "Add Python VERSION to PATH".  
   
 
-2) Install python packages via PIP. Required python packages:
-    - configparser
-    - callr
-    - notify-py
-    - msedge-selenium-tools
-
-Example:  
+2) Install python packages via pip:
 ```
-pip install callr
+pip install -r requirements.txt
+```
+or
+```
+pip3 install -r requirements.txt
 ```
 
-3) Make sure you have Microsoft Edge installed. Then; check what version of Edge you have got installed on your system. Like so:  
+3) **WINDOWS** Make sure you have Microsoft Edge installed. Then; check what version of Edge you have got installed on your system. Like so:  
 
 ![version](./resources/edge_version.jpg)  
 
 Memorize the version number, and download the MicroSoft Edge WebDriver with the same version number [here](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/).
 Go ahead and store the driver executable anywhere you like and copy its absolute path. Now, in StockNotifierPS5.py, at the start of every buy_item_at function,
+paste your path inside the quotation marks (") where it tells you to do so.
+
+3) **MAC** Make sure you have Microsoft Edge installed. Then; check what version of Edge you have got installed on your system. Like so:  
+
+Memorize the version number, and download the MicroSoft Edge WebDriver with the same version number [here](https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/). Go ahead and store the driver executable anywhere you like and copy its absolute path. Now, in StockNotifierPS5.py, at the start of every buy_item_at function,
 paste your path inside the quotation marks (") where it tells you to do so.
 
 4) After that is done. Fill out the rest of your personal details in the config file.   

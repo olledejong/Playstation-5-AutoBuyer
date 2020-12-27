@@ -1,0 +1,5 @@
+requests~=2.25.1
+callr~=2.1.0
+selenium~=3.141.0
+notify-py~=0.3.1
+msedge-selenium-tools~=3.141.3
