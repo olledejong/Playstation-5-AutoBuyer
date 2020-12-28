@@ -206,7 +206,7 @@ def initialize_webdriver(url):
         from selenium.webdriver import Chrome, ChromeOptions
         options = ChromeOptions()
         options.use_chromium = True
-        options.headless = False
+        options.headless = True
         driver = Chrome("paste_driver_path_here", options=options)
     else:
         print("Only Windows and MacOS are supported (for now). Terminating.")
