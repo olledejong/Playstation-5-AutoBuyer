@@ -25,7 +25,7 @@ or
 pip3 install -r requirements.txt
 ```
 
-3) Install the Chrome WebDriver
+3) Download the Chrome WebDriver
 
 Make sure you have Chrome installed. Then; check what version of Chrome you have got installed on your system. Like so:  
 
