@@ -11,9 +11,6 @@ Furthermore, feel free to contact me on [twitter](https://twitter.com/dejongolle
 
 ## Get started
 
-### The auto-buy feature
-To be able to make use of the auto-buy feature of this script,
-
 ### Installation
 
 1) Install python, and make sure you check the box which says: "Add Python VERSION to PATH".  
