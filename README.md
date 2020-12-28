@@ -37,7 +37,8 @@ Go ahead and store the driver executable anywhere you like and copy its full/abs
 <img src="resources/copy_as_path.jpg" width='80%' alt="Copy As Path"/>  
 
 Now, in StockNotifierPS5.py, in the initialize_webdriver() function,
-paste your path inside the quotation marks (") where it tells you to do so.
+paste your path inside the quotation marks (") where it tells you to do so. **Be aware**. Windows paths should have double backslashes 
+and MacOS paths should have single forward slashes.
 
 ## Usage
 Once the steps stated above have been completed, you can proceed to change the application its settings. Once you've done that, you'll be able to run it.
