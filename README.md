@@ -63,7 +63,7 @@ Webshop       | Method of payment
 Coolblue      | Bank Transfer
 BOL.COM       | Afterpay (availability depends on account)
 Mediamarkt    | Paypal  
-Nedgame       | *To be implemented*
+Nedgame       | Afterpay (phone number needed)
 Gamemania     | *To be implemented* 
 Intertoys     | *To be implemented*  
 
