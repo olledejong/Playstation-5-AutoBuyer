@@ -40,6 +40,7 @@ paypal_pw = parser.get("auto-buy passwords", "paypal")
 bol_pw = parser.get("auto-buy passwords", "bol")
 coolblue_pw = parser.get("auto-buy passwords", "coolblue")
 mediamarkt_pw = parser.get("auto-buy passwords", "mediamarkt")
+nedgame_pw = parser.get("auto-buy passwords", "nedgame")
 
 # ==================== #
 # INITIALIZE CALLR API #
@@ -160,6 +161,10 @@ def main():
                     if auto_buy:
                         if delegate_purchase(info.get('webshop'), info.get('url')):
                             print("[=== ITEM ORDERED, HOORAY! ===] [=== {} ===]".format(place))
+                            if do_notify:
+                                notification.title = "Hooray, item ordered at {}".format(place)
+                                notification.message = "Check your email for a confirmation of your order"
+                                notification.send()
                             ordered_items += 1
                             # if reached max amount of ordered items
                             if not ordered_items < max_ordered_items:
@@ -188,6 +193,10 @@ def main():
                     if auto_buy:
                         if delegate_purchase(info.get('webshop'), info.get('url')):
                             print("[=== ITEM ORDERED, HOORAY! ===] [=== {} ===]".format(place))
+                            if do_notify:
+                                notification.title = "Hooray, item ordered at {}".format(place)
+                                notification.message = "Check your email for a confirmation of your order"
+                                notification.send()
                             ordered_items += 1
                             # if reached max amount of ordered items
                             if not ordered_items < max_ordered_items:
@@ -229,6 +238,8 @@ def delegate_purchase(webshop, url):
         return buy_item_at_bol(initialize_webdriver(url), url)
     elif webshop == 'mediamarkt':
         return buy_item_at_mediamarkt(initialize_webdriver(url))
+    elif webshop == 'nedgame':
+        return buy_item_at_nedgame(initialize_webdriver(url))
     else:
         print("Auto-buy is not yet implemented for: {}".format(webshop))
         return False
@@ -370,6 +381,15 @@ def buy_item_at_bol(driver, url):
 
 
 def buy_item_at_mediamarkt(driver):
+    """
+    Function that will buy the item from the Mediamarkt webshop.
+
+    This is done by a sequence of interactions on the website, just like
+    a person would normally do. Only actually buys when application is in
+    production. See the config.ini setting `production`.
+
+    :param driver:
+    """
     try:
         # ACCEPT COOKIES
         WDW(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, 'gdpr-cookie-layer__btn--submit--all'))).click()
@@ -425,6 +445,42 @@ def buy_item_at_mediamarkt(driver):
         return True
     except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
         print("Something went wrong while trying to order at Mediamarkt. Stack:\n{}".format(e))
+        driver.close()
+        driver.quit()
+        return False
+
+
+def buy_item_at_nedgame(driver):
+    """
+    Function that will buy the item from the Nedgame webshop.
+
+    This is done by a sequence of interactions on the website, just like
+    a person would normally do. Only actually buys when application is in
+    production. See the config.ini setting `production`.
+
+    :param driver:
+    """
+    try:
+        WDW(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, 'koopbutton'))).click()
+        driver.get('https://www.nedgame.nl/winkelmand')
+        WDW(driver, 15).until(EC.presence_of_element_located((By.NAME, 'login_emailadres'))).send_keys(personal_email)
+        WDW(driver, 15).until(EC.presence_of_element_located((By.NAME, 'login_wachtwoord'))).send_keys(nedgame_pw)
+        WDW(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, 'bigbutton'))).click()
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.ID, 'BetaalWijze_9'))).click()
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.ID, 'mobiel'))).send_keys(phone)
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.NAME, 'dob_day'))).clear()
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.NAME, 'dob_day'))).send_keys(10)
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.NAME, 'dob_month'))).clear()
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.NAME, 'dob_month'))).send_keys(10)
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.NAME, 'dob_year'))).clear()
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.NAME, 'dob_year'))).send_keys(1990)
+        WDW(driver, 15).until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[4]/div/div[2]/div[2]/div/div[1]/form/div/div[6]/button'))).click()
+        # QUIT
+        driver.close()
+        driver.quit()
+        return True
+    except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
+        print("Something went wrong while trying to order at Nedgame. Stack:\n{}".format(e))
         driver.close()
         driver.quit()
         return False
