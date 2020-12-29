@@ -61,7 +61,7 @@ Fill out your credentials in the config file. Variables *username* and *password
 Webshop       | Method of payment
 ------------- | -------------
 Coolblue      | Bank Transfer
-BOL.COM       | Afterpay (availability depends per account)
+BOL.COM       | Afterpay (availability depends on account)
 Mediamarkt    | Paypal  
 
 For the usage of the auto-buy feature, set the *auto_buy* value to true. To be able to make the automatic purchase of items successful, 
@@ -75,18 +75,18 @@ To change this setting, change the value of *max_ordered_items*.
 
 ### Running the script
 
-In a CommandPrompt window, navigate to the StockNotifier folder like so:  
+In a CommandPrompt window, navigate to the Playstation5AutoBuyer folder like so:  
 ```
-cd C:\Users\YourPcName\Location\Of\StockNotifier
+cd C:\Users\YourPcName\Location\Of\Playstation5AutoBuyer
 ```
 
 Once in the StockNotifier folder, run the script like so:
 ```
-python StockNotifierPS5.py
+python PS5AutoBuyer.py
 ```
 or  
 ```
-python3 StockNotifierPS5.py
+python3 PS5AutoBuyer.py
 ```
 
 <a href="https://www.buymeacoffee.com/olledejong"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=olledejong&button_colour=008a73&font_colour=ffffff&font_family=Poppins&outline_colour=ffffff&coffee_colour=FFDD00" style="float: right; margin-top: 20px !important;"></a>
