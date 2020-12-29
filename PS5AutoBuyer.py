@@ -7,7 +7,6 @@ import configparser
 import time
 import sys
 import platform
-import datetime
 from selenium.common import exceptions as SE
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
@@ -306,7 +305,7 @@ def buy_item_at_coolblue(driver):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
+    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("Something went wrong while trying to order at COOLBLUE. Stack:\n{}".format(e))
         driver.close()
         driver.quit()
@@ -373,7 +372,7 @@ def buy_item_at_bol(driver, url):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
+    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("Something went wrong while trying to order at BOL.COM. Stack:\n{}".format(e))
         driver.close()
         driver.quit()
@@ -443,7 +442,7 @@ def buy_item_at_mediamarkt(driver):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
+    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("Something went wrong while trying to order at Mediamarkt. Stack:\n{}".format(e))
         driver.close()
         driver.quit()
@@ -479,7 +478,7 @@ def buy_item_at_nedgame(driver):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
+    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("Something went wrong while trying to order at Nedgame. Stack:\n{}".format(e))
         driver.close()
         driver.quit()
