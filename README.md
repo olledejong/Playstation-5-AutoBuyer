@@ -2,7 +2,7 @@
 
 *Please note; usage of tools like this to gain an advantage over other customers is not ethically right.*
 
-**Auto-buy works for Coolblue, BOL.COM and Mediamarkt.**
+**Auto-buy works for Coolblue, BOL.COM, Mediamarkt and Nedgame.**
 
 This script's aim is to auto-buy Playstation 5 consoles. At first, this little fun project was meant to be designed only for notifying users when a Playstation 5 might be in stock. However, the more time I put in this, the more I wanted to expand it.
 The script is designed only to work for pre-determined web-stores within the Netherlands.
