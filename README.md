@@ -63,6 +63,10 @@ Webshop       | Method of payment
 Coolblue      | Bank Transfer
 BOL.COM       | Afterpay (availability depends on account)
 Mediamarkt    | Paypal  
+Nedgame       | *To be implemented*
+Gamemania     | *To be implemented* 
+Intertoys     | *To be implemented*  
+
 
 For the usage of the auto-buy feature, set the *auto_buy* value to true. To be able to make the automatic purchase of items successful, 
 you will need to have an account at each of the webshops. For the purchase at some webshops, you might need to have a paypal account. 
