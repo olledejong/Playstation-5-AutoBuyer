@@ -43,12 +43,8 @@ Now, in the config.ini file, paste your copied path behind the path_to_driver va
 Once the steps stated above have been completed, you can proceed to run the application.  
 ### Running the script
 
-In a command prompt / cmd window, navigate to the Playstation5AutoBuyer folder like so:  
-```
-cd C:\Users\YourPcName\Location\Of\Playstation5AutoBuyer
-```
+In a command prompt / cmd window, navigate to the Playstation5AutoBuyer folder and run the script like so:
 
-Once in the StockNotifier folder, run the script like so:
 ```
 python PS5AutoBuyer.py
 ```
