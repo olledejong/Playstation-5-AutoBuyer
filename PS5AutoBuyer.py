@@ -6,6 +6,7 @@ import callr
 import configparser
 import time
 import sys
+import six
 import re
 import platform
 from os import system, name
@@ -15,6 +16,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as WDW
 from selenium.webdriver.common.by import By
 from notifypy import Notify
+from pyfiglet import Figlet, figlet_format
+from pyconfigstore import ConfigStore
+from PyInquirer import (Token, ValidationError, Validator, print_json, prompt,
+                        style_from_dict)
+
+try:
+    from termcolor import colored
+except ImportError:
+    colored = None
 
 __author__ = "Olle de Jong"
 __copyright__ = "Copyright 2020, Olle de Jong"
@@ -91,89 +101,203 @@ locations = {
 }
 
 
-def main():
+style = style_from_dict({
+    Token.QuestionMark: '#ff7f50 bold',
+    Token.Answer: '#ff7f50 bold',
+    Token.Instruction: '',  # default
+    Token.Separator: '#cc5454',
+    Token.Selected: '#0abf5b',  # default
+    Token.Pointer: '#673ab7 bold',
+    Token.Question: '',
+})
+
+
+class EmailValidator(Validator):
     """
-    Function that loops until the 'desired amount of items bought' is reached.
-
-    While that amount is not reached, the function checks whether the item is
-    in stock for every webshop in the locations dictionary. Once an item is in
-    stock, it will proceed to buy this item by calling the `delegate_purchase`
-    function. This function takes the name of the webshop and the url of the
-    item as its arguments.
-
-    Between every check, there is a wait of 30 seconds.
+    Checks if the input is a valid email address
     """
-    # get settings
-    settings, api = configure_settings()
-    print("\nDone, program is starting now!\n")
+    pattern = r"\"?([-a-zA-Z0-9.`?{}]+@\w+\.\w+)\"?"
 
-    ordered_items = 0
-    # loop until desired amount of ordered items is reached
-    while ordered_items < settings.get("max_ordered_items"):
-        # ==================================================== #
-        # loop through all web-shops where potentially in stock #
-        # ==================================================== #
-        for place, info in locations.items():
-            # ========================================== #
-            # item not known to be in stock, check again #
-            # ========================================== #
-            if not info.get('inStock'):
-                try:
-                    content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
-                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
-                    print("[=== ERROR ===] [=== {} ===]".format(place))
-                    continue
-                # ======================================== #
-                # item in stock, proceed to try and buy it #
-                # ======================================== #
-                if info.get('outOfStockLabel') not in content:
-                    print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
-                    # if enabled, send sms
-                    if settings.get("sms_notify") and not settings.get("auto_buy"):
-                        try:
-                            api.call('sms.send', 'SMS', settings.get("phone"),
-                                     "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
-                        except (callr.CallrException, callr.CallrLocalException) as e:
-                            print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
-                    # === NATIVE OS NOTIFICATION === #
-                    if settings.get("natively_notify"):
-                        notification.title = "Item might be in stock at:".format(place)
-                        notification.message = info.get('url')
-                        notification.send()
-                    # === IF ENABLED, BUY ITEM === #
-                    if settings.get("auto_buy"):
-                        ordered_items = prepare_auto_buy(api, info, ordered_items, place, settings)
-
-                    # === SET IN-STOCK TO TRUE === #
-                    info['inStock'] = True
-                # not in stock
-                else:
-                    print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
-            # ================================== #
-            # item is in stock, do the following #
-            # ================================== #
+    def validate(self, email):
+        if len(email.text):
+            if re.match(self.pattern, email.text):
+                return True
             else:
-                try:
-                    content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
-                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
-                    print("[=== ERROR ===] [=== {} ===]".format(place))
-                    continue
-                if info.get('outOfStockLabel') in content:
-                    print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
-                    info['inStock'] = False
-                else:
-                    print("[=== STILL IN STOCK! ===] [=== {} ===]".format(place))
-                    if settings.get("auto_buy"):
-                        ordered_items = prepare_auto_buy(api, info, ordered_items, place, settings)
-
-        # =============================== #
-        # wait half a minute and go again #
-        # =============================== #
-        print("\n Check over. Trying again in 30 seconds..\n")
-        time.sleep(30)
+                raise ValidationError(
+                    message="That is not a valid email address",
+                    cursor_position=len(email.text))
+        else:
+            raise ValidationError(
+                message="You can't leave this blank",
+                cursor_position=len(email.text))
 
 
-def prepare_auto_buy(api, info, ordered_items, place, settings):
+class EmptyValidator(Validator):
+    """
+    Checks if the input to the question is not empty
+    """
+    def validate(self, value):
+        if len(value.text):
+            return True
+        else:
+            raise ValidationError(
+                message="You can't leave this blank",
+                cursor_position=len(value.text))
+
+
+class PhoneValidator(Validator):
+    """
+    Checks if the input is a valid dutch number
+    """
+    pattern = r"^[+][3][1][6][0-9]{8}$"
+
+    def validate(self, phone):
+        if len(phone.text):
+            if re.match(self.pattern, phone.text):
+                return True
+            else:
+                raise ValidationError(
+                    message="That is not a valid dutch phone number",
+                    cursor_position=len(phone.text))
+        else:
+            raise ValidationError(
+                message="You can't leave this blank",
+                cursor_position=len(phone.text))
+
+
+class NumberValidator(Validator):
+    """
+    Checks if the input is a number
+    """
+    def validate(self, document):
+        try:
+            int(document.text)
+        except ValueError:
+            raise ValidationError(
+                message='Please enter a number',
+                cursor_position=len(document.text))
+
+
+def ask_to_configure_settings():
+    """
+    Asks the user to configure the settings of the script via the cli
+    """
+    clear_cmdline()
+    log("The PS5 AutoBuyer", "white", "larry3d", True)
+    log("Welcome. To get started, please answer the following questions. All information is vital. \nIf it wasn't, "
+        "I wouldn't be asking :). Don't worry about leaking your passwords. This script \nwill run locally on your "
+        "very own machine. I can not, in any way, reach your credentials.\n",
+        "cyan")
+
+    questions = [
+        {
+            'type': 'input',
+            'name': 'email',
+            'message': 'Enter your email address:',
+            'validate': EmailValidator
+        },
+        {
+            'type': 'input',
+            'name': 'phone',
+            'message': 'Enter your phone number (e.g. +31612345678):',
+            'validate': PhoneValidator
+        },
+        # natively notify
+        {
+            'type': 'confirm',
+            'name': 'natively_notify',
+            'message': 'Do you want to be updated via this machine?'
+        },
+        # sms notify
+        {
+            'type': 'confirm',
+            'name': 'sms_notify',
+            'message': 'Do you want to be updated via SMS / text messages?'
+        },
+        # callr credentials
+        {
+            'type': 'input',
+            'name': 'callr_username',
+            'message': 'What is your CALLR username?:',
+            'when': lambda answers: answers['sms_notify']
+        },
+        {
+            'type': 'password',
+            'name': 'callr_password',
+            'message': 'What is your CALLR password?:',
+            'when': lambda answers: answers['sms_notify']
+        },
+        # auto-buy
+        {
+            'type': 'confirm',
+            'name': 'auto_buy',
+            'message': 'Do you want to automatically buy consoles when in stock?'
+        },
+        {
+            'type': 'input',
+            'name': 'max_ordered_items',
+            'message': 'How many consoles do you wish to buy at a maximum?',
+            'validate': NumberValidator,
+            'when': lambda answers: answers['auto_buy'],
+            'filter': lambda val: int(val)
+        },
+        # web-shop passwords
+        {
+            'type': 'password',
+            'name': 'coolblue_password',
+            'message': 'What is your Coolblue account password?:',
+            'when': lambda answers: answers['auto_buy']
+        },
+        {
+            'type': 'password',
+            'name': 'bol_password',
+            'message': 'What is your Bol.com account password?:',
+            'when': lambda answers: answers['auto_buy']
+        },
+        {
+            'type': 'password',
+            'name': 'mediamarkt_password',
+            'message': 'What is your Mediamarkt account password?:',
+            'when': lambda answers: answers['auto_buy']
+        },
+        {
+            'type': 'password',
+            'name': 'nedgame_password',
+            'message': 'What is your Nedgame account password?:',
+            'when': lambda answers: answers['auto_buy']
+        },
+        {
+            'type': 'password',
+            'name': 'paypal_password',
+            'message': 'What is your Paypal account password (needed for auto-buy at Mediamarkt)?:',
+            'when': lambda answers: answers['auto_buy']
+        }
+    ]
+    answers = prompt(questions, style=style)
+    log("\nThank you. Program is starting now!\n", "cyan")
+
+    return answers
+
+
+def log(string, color, font="slant", figlet=False):
+    """
+    Prints a cli message with extra options
+    """
+    if colored:
+        if not figlet:
+            six.print_(colored(string, color, attrs=["bold"]))
+        else:
+            six.print_(colored(figlet_format(
+                string, font=font), color, attrs=["bold"]))
+    else:
+        six.print_(string)
+
+
+def auto_buy_item(api, info, ordered_items, place, settings):
+    """
+    Proceeds to auto-buy the item that is in stock. Notifies the
+    user if notifications are enabled.
+    """
     if delegate_purchase(info.get('webshop'), info.get('url'), settings):
         print("[=== ITEM ORDERED, HOORAY! ===] [=== {} ===]".format(place))
         if settings.get("natively_notify"):
@@ -191,119 +315,10 @@ def prepare_auto_buy(api, info, ordered_items, place, settings):
     return ordered_items
 
 
-def configure_settings():
-    clear_cmdline()
-    settings = {}
-
-    # GENERAL QUESTIONS #
-    print("To get started, please answer the following questions.\n"
-          "All information is vital. If not, I wouldn't be asking :).\n")
-    email = get_email()
-    settings["email"] = email
-    phone = get_phone_number()
-    settings["phone"] = phone
-
-    # SETTING QUESTIONS #
-    print("Please answer the following close-ended questions with either 'yes' or 'no'.\n")
-    settings["natively_notify"] = get_notify_setting()
-    sms_notify, api = get_sms_setting()
-    settings["sms_notify"] = sms_notify
-    auto_buy, max_amount, passwords = get_autobuy_setting()
-    settings["auto_buy"] = auto_buy
-    settings["max_ordered_items"] = max_amount
-    settings["passwords"] = passwords
-
-    return settings, api
-
-
-def get_email():
-    email = input("Please enter your email address:\n")
-    while not re.match("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|'(?:[\x01-\x08\x0b\x0c\x0e-"
-                       "\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*')@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0"
-                       "-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])"
-                       ")\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:"
-                       "[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)])", email):
-        clear_cmdline()
-        email = input("That is not a valid email address. Please try again:\n")
-    clear_cmdline()
-    return email
-
-
-def get_phone_number():
-    phone_numbr = input("Please enter your phone number (example: +31674528539):\n")
-    while not re.match("^[+][3][1][6][0-9]{8}$", phone_numbr):
-        clear_cmdline()
-        phone_numbr = input("That is not a valid dutch phone number. Please try again:\n")
-    clear_cmdline()
-    return phone_numbr
-
-
-def get_notify_setting():
-    do_natively_notify = input("Would you like to be natively notified via this machine?:\n")
-    if do_natively_notify.lower() == "yes":
-        do_natively_notify = True
-    elif do_natively_notify.lower() == "no":
-        do_natively_notify = False
-    else:
-        clear_cmdline()
-        print("Please answer with either 'yes' or 'no'.")
-        get_notify_setting()
-    return do_natively_notify
-
-
-def get_sms_setting():
-    api = 'disabled'
-    sms_notify = input("\nWould you like to be notified via text / SMS?:\n")
-    if sms_notify.lower() == "yes":
-        sms_notify = True
-        # initialize callr api
-        callr_username = input("\nWhat is your CALLR username?:\n")
-        callr_password = input("\nWhat is your CALLR password?:\n")
-        api = callr.Api(callr_username, callr_password)
-    elif sms_notify.lower() == "no":
-        sms_notify = False
-    else:
-        clear_cmdline()
-        print("Please answer with either 'yes' or 'no'.")
-        get_sms_setting()
-    return sms_notify, api
-
-
-def get_autobuy_setting():
-    do_auto_buy = input("\nWould you like the program to auto-buy consoles when in stock?:\n")
-    while not do_auto_buy.lower() == 'yes' or do_auto_buy.lower() == 'no':
-        do_auto_buy = input("\nTry again, do you want to use the auto-buy feature?:\n")
-    else:
-        if do_auto_buy.lower() == "yes":
-            do_auto_buy = True
-            max_buy_amount = get_max_buy_amount()
-            passwords = get_passwords()
-        elif do_auto_buy.lower() == "no":
-            do_auto_buy = False
-            max_buy_amount = 0
-            passwords = 'auto-buy disabled'
-    return do_auto_buy, max_buy_amount, passwords
-
-
-def get_max_buy_amount():
-    max_buy_amount = input("\nWhat is the maximum amount of consoles you wish to order?:\n")
-    while not max_buy_amount.isnumeric():
-        max_buy_amount = input("\nWhat is the maximum amount of consoles you wish to order?:\n")
-    return int(max_buy_amount)
-
-
-def get_passwords():
-    clear_cmdline()
-    print("Now, onto the account passwords. These are needed for automatically buying the consoles at the "
-          "different locations. \nFilling in a wrong password will result in failure of the auto-buy attempt.\n")
-    return {"coolblue": input("What is your Coolblue account password?:\n"),
-            "bol": input("What is your Bol.com account password?:\n"),
-            "mediamarkt": input("What is your Mediamarkt account password?:\n"),
-            "nedgame": input("What is your Nedgame account password?:\n"),
-            "paypal": input("What is your Paypal account password? (needed for auto-buy at Mediamarkt):\n")}
-
-
 def clear_cmdline():
+    """
+    Clears the cmd window.
+    """
     if name == 'nt':
         _ = system('cls')
     else:
@@ -311,6 +326,11 @@ def clear_cmdline():
 
 
 def initialize_webdriver(url):
+    """
+    This function initializes the webdriver.
+
+    :param: url
+    """
     if platform.system() == "Windows" or platform.system() == "Darwin":
         from selenium.webdriver import Chrome, ChromeOptions
         options = ChromeOptions()
@@ -358,11 +378,12 @@ def buy_item_at_coolblue(driver, settings):
     try:
         # ACCEPT COOKIES
         driver.find_element_by_name("accept_cookie").click()
-        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html/body/header/div/div[4]/ul/li[2]/a/span[2]"))).click()
+        WDW(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, "/html/body/header/div/div[4]/ul/li[2]/a/span[2]"))).click()
         # LOGIN
         ActionChains(driver).pause(1) \
             .send_keys_to_element(driver.find_element(By.ID, 'header_menu_emailaddress'), settings.get("email")) \
-            .send_keys_to_element(driver.find_element(By.ID, 'header_menu_password'), settings.get("passwords").get("coolblue")) \
+            .send_keys_to_element(driver.find_element(By.ID, 'header_menu_password'), settings.get("coolblue_password")) \
             .click(driver.find_element(By.XPATH, '/html/body/header/div/div[4]/ul/li[2]/div/div/div[2]/div/form/div['
                                                  '2]/div[2]/div[2]/button')) \
             .perform()
@@ -431,6 +452,7 @@ def buy_item_at_bol(driver, url, settings):
 
     :param driver:
     :param url:
+    :param settings:
     """
     try:
         # ACCEPT COOKIES
@@ -440,7 +462,7 @@ def buy_item_at_bol(driver, url, settings):
         driver.get('https://www.bol.com/nl/rnwy/account/overzicht')
         actions = ActionChains(driver)
         actions.pause(1).send_keys_to_element(driver.find_element(By.ID, 'login_email'), settings.get("email")) \
-            .send_keys_to_element(driver.find_element(By.ID, 'login_password'),  settings.get("passwords").get("bol")) \
+            .send_keys_to_element(driver.find_element(By.ID, 'login_password'), settings.get("bol_password")) \
             .click(driver.find_element(By.XPATH, '//*[@id="existinguser"]/fieldset/div[3]/input')).perform()
         actions.reset_actions()
         driver.get(url)
@@ -508,7 +530,8 @@ def buy_item_at_mediamarkt(driver, settings):
         WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'basket-flyout-cart'))).click()
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'cobutton-next'))).click()
         WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'login-email'))).send_keys(settings.get("email"))
-        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'loginForm-password'))).send_keys(settings.get("passwords").get("mediamarkt"))
+        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'loginForm-password'))).send_keys(
+            settings.get("mediamarkt_password"))
         WDW(driver, 10).until(EC.presence_of_element_located((By.NAME, 'loginForm'))).find_element(By.CLASS_NAME,
                                                                                                    'cobutton-next').click()
 
@@ -545,7 +568,8 @@ def buy_item_at_mediamarkt(driver, settings):
         email_input = WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'email')))
         email_input.clear()
         email_input.send_keys(settings.get("email"))
-        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'password'))).send_keys( settings.get("passwords").get("paypal"))
+        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'password'))).send_keys(
+            settings.get("paypal_password"))
         WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'btnLogin'))).click()
         if in_production:
             WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'confirmButtonTop'))).click()
@@ -576,8 +600,10 @@ def buy_item_at_nedgame(driver, settings):
     try:
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'koopbutton'))).click()
         driver.get('https://www.nedgame.nl/winkelmand')
-        WDW(driver, 10).until(EC.presence_of_element_located((By.NAME, 'login_emailadres'))).send_keys(settings.get("email"))
-        WDW(driver, 10).until(EC.presence_of_element_located((By.NAME, 'login_wachtwoord'))).send_keys(settings.get("passwords").get("nedgame"))
+        WDW(driver, 10).until(EC.presence_of_element_located((By.NAME, 'login_emailadres'))).send_keys(
+            settings.get("email"))
+        WDW(driver, 10).until(EC.presence_of_element_located((By.NAME, 'login_wachtwoord'))).send_keys(
+            settings.get("nedgame_password"))
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'bigbutton'))).click()
         WDW(driver, 10).until(EC.visibility_of_element_located((By.ID, 'BetaalWijze_9'))).click()
         WDW(driver, 10).until(EC.visibility_of_element_located((By.ID, 'mobiel'))).send_keys(settings.get("phone"))
@@ -598,6 +624,90 @@ def buy_item_at_nedgame(driver, settings):
         driver.close()
         driver.quit()
         return False
+
+
+def main():
+    """
+    Function that loops until the 'desired amount of items bought' is reached.
+
+    While that amount is not reached, the function checks whether the item is
+    in stock for every webshop in the locations dictionary. Once an item is in
+    stock, it will proceed to buy this item by calling the `delegate_purchase`
+    function. This function takes the name of the webshop and the url of the
+    item as its arguments.
+
+    Between every check, there is a wait of 30 seconds.
+    """
+    # get settings
+    settings = ask_to_configure_settings()
+    if settings.get("sms_notify"):
+        api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
+
+    ordered_items = 0
+    # loop until desired amount of ordered items is reached
+    while ordered_items < settings.get("max_ordered_items"):
+        # ==================================================== #
+        # loop through all web-shops where potentially in stock #
+        # ==================================================== #
+        for place, info in locations.items():
+            # ========================================== #
+            # item not known to be in stock, check again #
+            # ========================================== #
+            if not info.get('inStock'):
+                try:
+                    content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
+                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
+                    print("[=== ERROR ===] [=== {} ===]".format(place))
+                    continue
+                # ======================================== #
+                # item in stock, proceed to try and buy it #
+                # ======================================== #
+                if info.get('outOfStockLabel') not in content:
+                    print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
+                    # if enabled, send sms
+                    if settings.get("sms_notify") and not settings.get("auto_buy"):
+                        try:
+                            api.call('sms.send', 'SMS', settings.get("phone"),
+                                     "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
+                        except (callr.CallrException, callr.CallrLocalException) as e:
+                            print(
+                                "[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
+                    # === NATIVE OS NOTIFICATION === #
+                    if settings.get("natively_notify"):
+                        notification.title = "Item might be in stock at:".format(place)
+                        notification.message = info.get('url')
+                        notification.send()
+                    # === IF ENABLED, BUY ITEM === #
+                    if settings.get("auto_buy"):
+                        ordered_items = auto_buy_item(api, info, ordered_items, place, settings)
+
+                    # === SET IN-STOCK TO TRUE === #
+                    info['inStock'] = True
+                # not in stock
+                else:
+                    print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
+            # ================================== #
+            # item is in stock, do the following #
+            # ================================== #
+            else:
+                try:
+                    content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
+                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
+                    print("[=== ERROR ===] [=== {} ===]".format(place))
+                    continue
+                if info.get('outOfStockLabel') in content:
+                    print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
+                    info['inStock'] = False
+                else:
+                    print("[=== STILL IN STOCK! ===] [=== {} ===]".format(place))
+                    if settings.get("auto_buy"):
+                        ordered_items = auto_buy_item(api, info, ordered_items, place, settings)
+
+        # =============================== #
+        # wait half a minute and go again #
+        # =============================== #
+        print("\n Check over. Trying again in 30 seconds..\n")
+        time.sleep(30)
 
 
 # start of program
