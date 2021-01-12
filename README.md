@@ -1,5 +1,7 @@
 # Playstation 5 AutoBuyer | The Netherlands only
 
+![](resources/cli.PNG)
+
 *Please note; usage of tools like this to gain an advantage over other customers is not ethically right.*
 
 **Auto-buy works for Coolblue, BOL.COM, Mediamarkt and Nedgame.**
@@ -16,7 +18,7 @@ Furthermore, feel free to contact me on [twitter](https://twitter.com/dejongolle
 1) Install [python](https://www.python.org/downloads/), and make sure you check the box which says: "Add Python VERSION to PATH".  
   
 
-2) Install python packages via pip:
+2) Using a command prompt, install the python packages via pip:
 ```
 pip install -r requirements.txt
 ```
