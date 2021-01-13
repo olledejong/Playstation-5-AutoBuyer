@@ -293,7 +293,7 @@ def log(string, color, font="slant", figlet=False):
         six.print_(string)
 
 
-def auto_buy_item(api, info, ordered_items, place, settings):
+def auto_buy_item(info, ordered_items, place, settings):
     """
     Proceeds to auto-buy the item that is in stock. Notifies the
     user if notifications are enabled.
@@ -640,12 +640,10 @@ def main():
     """
     # get settings
     settings = ask_to_configure_settings()
-    if settings.get("sms_notify"):
-        api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
 
     ordered_items = 0
     # loop until desired amount of ordered items is reached
-    while ordered_items < settings.get("max_ordered_items"):
+    while True:
         # ==================================================== #
         # loop through all web-shops where potentially in stock #
         # ==================================================== #
@@ -667,11 +665,11 @@ def main():
                     # if enabled, send sms
                     if settings.get("sms_notify") and not settings.get("auto_buy"):
                         try:
+                            api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
                             api.call('sms.send', 'SMS', settings.get("phone"),
-                                     "ITEM MIGHT BE IN STOCK AT {}. URL: {}".format(place, info.get('url')), None)
+                                     "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
                         except (callr.CallrException, callr.CallrLocalException) as e:
-                            print(
-                                "[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
+                            print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
                     # === NATIVE OS NOTIFICATION === #
                     if settings.get("natively_notify"):
                         notification.title = "Item might be in stock at:".format(place)
@@ -679,7 +677,7 @@ def main():
                         notification.send()
                     # === IF ENABLED, BUY ITEM === #
                     if settings.get("auto_buy"):
-                        ordered_items = auto_buy_item(api, info, ordered_items, place, settings)
+                        ordered_items = auto_buy_item(info, ordered_items, place, settings)
 
                     # === SET IN-STOCK TO TRUE === #
                     info['inStock'] = True
@@ -701,7 +699,7 @@ def main():
                 else:
                     print("[=== STILL IN STOCK! ===] [=== {} ===]".format(place))
                     if settings.get("auto_buy"):
-                        ordered_items = auto_buy_item(api, info, ordered_items, place, settings)
+                        ordered_items = auto_buy_item(info, ordered_items, place, settings)
 
         # =============================== #
         # wait half a minute and go again #
