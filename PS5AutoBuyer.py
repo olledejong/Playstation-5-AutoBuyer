@@ -1,25 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests
-import callr
 import configparser
-import time
-import sys
-import six
-import re
 import platform
+import re
+import sys
+import time
 from os import system, name
+
+import callr
+import requests
+import six
+from PyInquirer import (Token, ValidationError, Validator, prompt,
+                        style_from_dict)
+from notifypy import Notify
+from pyconfigstore import ConfigStore
+from pyfiglet import figlet_format
 from selenium.common import exceptions as SE
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait as WDW
-from selenium.webdriver.common.by import By
-from notifypy import Notify
-from pyfiglet import Figlet, figlet_format
-from pyconfigstore import ConfigStore
-from PyInquirer import (Token, ValidationError, Validator, print_json, prompt,
-                        style_from_dict)
 
 try:
     from termcolor import colored
@@ -44,10 +45,27 @@ in_production = parser.getboolean("developer", "production")
 # =================== #
 notification = Notify()
 
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+    "Accept-Encoding": "gzip, deflate",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1",
+    "Connection": "close", "Upgrade-Insecure-Requests": "1"
+}
+
 # =============================== #
 # DICTIONARY WITH WEBSHOP DETAILS #
 # =============================== #
 locations = {
+    'Amazon NL Disk': {
+        'webshop': 'amazon-nl',
+        'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
+        'inStock': False,
+        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
+    'Amazon NL Digital': {
+        'webshop': 'amazon-nl',
+        'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
+        'inStock': False,
+        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
     'COOLBLUE Digital': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
@@ -100,7 +118,6 @@ locations = {
         'outOfStockLabel': "uitverkocht!"}
 }
 
-
 style = style_from_dict({
     Token.QuestionMark: '#ff7f50 bold',
     Token.Answer: '#ff7f50 bold',
@@ -136,6 +153,7 @@ class EmptyValidator(Validator):
     """
     Checks if the input to the question is not empty
     """
+
     def validate(self, value):
         if len(value.text):
             return True
@@ -169,6 +187,7 @@ class NumberValidator(Validator):
     """
     Checks if the input is a number
     """
+
     def validate(self, document):
         try:
             int(document.text)
@@ -273,6 +292,7 @@ def ask_to_configure_settings():
             'when': lambda answers: answers['auto_buy']
         }
     ]
+
     answers = prompt(questions, style=style)
     log("\nThank you. Program is starting now!\n", "cyan")
 
@@ -305,8 +325,13 @@ def auto_buy_item(info, ordered_items, place, settings):
             notification.message = "Check your email for a confirmation of your order"
             notification.send()
         if settings.get("sms_notify"):
-            api.call('sms.send', 'SMS', settings.get("phone"),
-                     "Hooray! Item ordered at {}!".format(place), None)
+            try:
+                api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
+                api.call('sms.send', 'SMS', settings.get("phone"),
+                         "Hooray! Item ordered at {}!".format(place), None)
+            except (callr.CallrException, callr.CallrLocalException) as e:
+                print(
+                    "[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
         ordered_items += 1
         # if reached max amount of ordered items
         if not ordered_items < settings.get("max_ordered_items"):
@@ -352,7 +377,9 @@ def delegate_purchase(webshop, url, settings):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    if webshop == 'coolblue':
+    if webshop == 'amazon-nl':
+        print("Amazon NL only allows purchases via iDeal, this makes auto-buying impossible.")
+    elif webshop == 'coolblue':
         return buy_item_at_coolblue(initialize_webdriver(url), settings)
     elif webshop == 'bol':
         return buy_item_at_bol(initialize_webdriver(url), url, settings)
@@ -539,7 +566,6 @@ def buy_item_at_mediamarkt(driver, settings):
         basket = WDW(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'cart-product-table')))
         length_basket = len(basket)
         if length_basket > 1:
-            print(len(basket))
             while length_basket > 1:
                 basket = driver.find_elements(By.CLASS_NAME, 'cart-product-table')
                 for item in basket:
@@ -653,7 +679,7 @@ def main():
             # ========================================== #
             if not info.get('inStock'):
                 try:
-                    content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
+                    content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
                 except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
                     print("[=== ERROR ===] [=== {} ===]".format(place))
                     continue
@@ -663,13 +689,15 @@ def main():
                 if info.get('outOfStockLabel') not in content:
                     print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
                     # if enabled, send sms
-                    if settings.get("sms_notify") and not settings.get("auto_buy"):
+                    if settings.get("sms_notify"):
                         try:
+
                             api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
                             api.call('sms.send', 'SMS', settings.get("phone"),
                                      "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
                         except (callr.CallrException, callr.CallrLocalException) as e:
-                            print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
+                            print(
+                                "[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
                     # === NATIVE OS NOTIFICATION === #
                     if settings.get("natively_notify"):
                         notification.title = "Item might be in stock at:".format(place)
