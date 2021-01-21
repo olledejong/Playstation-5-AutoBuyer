@@ -61,85 +61,82 @@ locations = {
         'webshop': 'amazon-nl',
         'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
         'inStock': False,
-        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
+        'inStockLabel': "submit.add-to-cart-announce"},
     'Amazon NL Digital': {
         'webshop': 'amazon-nl',
         'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
         'inStock': False,
-        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
+        'inStockLabel': "submit.add-to-cart-announce"},
     'Alternate DE Disk': {
         'webshop': 'Alternate.de',
-        'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Spielkonsole/html/product'
-               '/1651220?',
+        'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Spielkonsole/html/product/1651220',
         'inStock': False,
-        'outOfStockLabel': "Artikel kann nicht gekauft werden"},
+        'inStockLabel': "arrow-cart-white_red-right"},
     'Alternate DE Digital': {
         'webshop': 'Alternate.de',
-        'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Digital-Edition-Spielkonsole'
-               '/html/product/1651221?',
+        'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Digital-Edition-Spielkonsole/html/product/1651221',
         'inStock': False,
-        'outOfStockLabel': "Artikel kann nicht gekauft werden"},
+        'inStockLabel': "arrow-cart-white_red-right"},
     'COOLBLUE Disk': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
         'inStock': False,
-        'outOfStockLabel': "Tijdelijk uitverkocht"},
+        'inStockLabel': "In mijn winkelwagen"},
     'COOLBLUE Digital': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
         'inStock': False,
-        'outOfStockLabel': "Tijdelijk uitverkocht"},
+        'inStockLabel': "In mijn winkelwagen"},
     'BOL.COM Disk': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-console/9300000004162282/',
         'inStock': False,
-        'outOfStockLabel': "outofstock-buy-block"},
+        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action"},
     'BOL.COM Digital': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-all-digital-console/9300000004162392/',
         'inStock': False,
-        'outOfStockLabel': "outofstock-buy-block"},
+        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action"},
     'MEDIAMARKT Disk': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
-        'outOfStockLabel': "Online uitverkocht"},
+        'inStockLabel': "online online-ndd"},
     'MEDIAMARKT Digital': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
         'inStock': False,
-        'outOfStockLabel': "Online uitverkocht"},
+        'inStockLabel': "online online-ndd"},
     'GAMEMANIA Disk': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/144093_playstation-5-disc-edition',
         'inStock': False,
-        'outOfStockLabel': "Niet beschikbaar"},
+        'inStockLabel': "AddToCartOverlay"},
     'GAMEMANIA Digital': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/145721_playstation-5-digital-edition',
         'inStock': False,
-        'outOfStockLabel': "Niet beschikbaar"},
+        'inStockLabel': "AddToCartOverlay"},
     'INTERTOYS Disk': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
         'inStock': False,
-        'outOfStockLabel': "uitverkocht!"},
+        'inStockLabel': "productPageAdd2Cart"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
         'inStock': False,
-        'outOfStockLabel': "uitverkocht!"},
+        'inStockLabel': "productPageAdd2Cart"},
     'NEDGAME Disk': {
         'webshop': 'nedgame',
-        'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/?utm_campaign=CPS'
-               '&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
+        'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/',
         'inStock': False,
-        'outOfStockLabel': "Uitverkocht"},
+        'inStockLabel': "AddProductToBasket"},
       'NEDGAME Digital': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/',
         'inStock': False,
-        'outOfStockLabel': "Uitverkocht"}
+        'inStockLabel': "AddProductToBasket"}
 }
 
 style = style_from_dict({
@@ -774,7 +771,7 @@ def main():
                 # ======================================== #
                 # item in stock, proceed to try and buy it #
                 # ======================================== #
-                if info.get('outOfStockLabel') not in content:
+                if info.get('inStockLabel') in content:
                     print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
                     # if enabled, send sms
                     if settings.get("sms_notify"):
@@ -809,7 +806,7 @@ def main():
                         requests.exceptions.ChunkedEncodingError) as e:
                     print("[=== ERROR ===] [=== {} ===]".format(place))
                     continue
-                if info.get('outOfStockLabel') in content:
+                if info.get('inOfStockLabel') not in content:
                     print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
                     info['inStock'] = False
                 else:
