@@ -462,7 +462,8 @@ def buy_item_at_amazon(driver, settings):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
+    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
+            SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("[=== Something went wrong while trying to order at Coolblue ===]")
         driver.close()
         driver.quit()
