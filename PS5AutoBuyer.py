@@ -57,6 +57,16 @@ headers = {
 # DICTIONARY WITH WEBSHOP DETAILS #
 # =============================== #
 locations = {
+    'Amazon NL Disk': {
+        'webshop': 'amazon-nl',
+        'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
+        'inStock': False,
+        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
+    'Amazon NL Digital': {
+        'webshop': 'amazon-nl',
+        'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
+        'inStock': False,
+        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
     'Alternate DE Disk': {
         'webshop': 'Alternate.de',
         'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Spielkonsole/html/product'
@@ -69,16 +79,11 @@ locations = {
                '/html/product/1651221?',
         'inStock': False,
         'outOfStockLabel': "Artikel kann nicht gekauft werden"},
-    'COOLBLUE Disk': {
-        'webshop': 'coolblue',
-        'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
-        'inStock': False,
-        'outOfStockLabel': "Binnenkort leverbaar"},
     'COOLBLUE Digital': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
         'inStock': False,
-        'outOfStockLabel': "Binnenkort leverbaar"},
+        'outOfStockLabel': "Tijdelijk uitverkocht"},
     'BOL.COM Disk': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-console/9300000004162282/',
@@ -94,24 +99,22 @@ locations = {
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
         'outOfStockLabel': "Online uitverkocht"},
-    'MEDIAMARKT Digital': {
-        'webshop': 'mediamarkt',
-        'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
+    'COOLBLUE Disk': {
+        'webshop': 'coolblue',
+        'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
         'inStock': False,
-        'outOfStockLabel': "Online uitverkocht"},
+        'outOfStockLabel': "Tijdelijk uitverkocht"},
     'NEDGAME Disk': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/?utm_campaign=CPS'
                '&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
         'inStock': False,
         'outOfStockLabel': "Uitverkocht"},
-    'NEDGAME Digital': {
-        'webshop': 'nedgame',
-        'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079'
-               '/?utm_campaign=CPS&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink'
-               '&utm_term=273010',
+    'MEDIAMARKT Digital': {
+        'webshop': 'mediamarkt',
+        'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
         'inStock': False,
-        'outOfStockLabel': "Uitverkocht"},
+        'outOfStockLabel': "Online uitverkocht"},
     'GAMEMANIA Disk': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/144093_playstation-5-disc-edition',
@@ -279,6 +282,12 @@ def ask_to_configure_settings():
         # web-shop passwords
         {
             'type': 'password',
+            'name': 'amazon_password',
+            'message': 'What is your Amazon account password?:',
+            'when': lambda answers: answers['auto_buy']
+        },
+        {
+            'type': 'password',
             'name': 'coolblue_password',
             'message': 'What is your Coolblue account password?:',
             'when': lambda answers: answers['auto_buy']
@@ -393,8 +402,8 @@ def delegate_purchase(webshop, url, settings):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    if webshop == 'amazon-nl' or webshop == 'amazon-de' or webshop == 'amazon-uk':
-        print("Auto-buying from Amazon is impossible.")
+    if webshop == 'amazon-nl':
+        return buy_item_at_amazon(initialize_webdriver(url), settings)
     elif webshop == 'coolblue':
         return buy_item_at_coolblue(initialize_webdriver(url), settings)
     elif webshop == 'bol':
@@ -405,6 +414,58 @@ def delegate_purchase(webshop, url, settings):
         return buy_item_at_nedgame(initialize_webdriver(url), settings)
     else:
         print("Auto-buy is not implemented for {} yet.".format(webshop))
+        return False
+
+
+def buy_item_at_amazon(driver, settings):
+    """
+    Function that will buy the item from the Amazon webshop.
+
+    This is done by a sequence of interactions on the website, just like
+    a person would normally do. Only actually buys when application is in
+    production. See the config.ini setting `production`.
+
+    :param driver:
+    """
+    try:
+        # ACCEPT COOKIES
+        driver.find_element_by_id("sp-cc-accept").click()
+        # ADD TO CART
+        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'add-to-cart-button'))).click()
+        # GO TO BASKET
+        driver.get("https://www.amazon.nl/gp/cart/view.html")
+        # ACCEPT BASKET
+        WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-primary'))).click()
+        # LOGIN USERNAME
+        ActionChains(driver).pause(1) \
+            .send_keys_to_element(driver.find_element(By.ID, 'ap_email'), settings.get("email")) \
+            .click(driver.find_element(By.ID, 'continue')) \
+            .perform()
+        # LOGIN PASSWORD
+        ActionChains(driver).pause(1) \
+            .send_keys_to_element(driver.find_element(By.ID, 'ap_password'), settings.get("amazon_password")) \
+            .click(driver.find_element(By.ID, 'signInSubmit')) \
+            .perform()
+        # ACCEPT SHIPPING ADDRESS
+        WDW(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, 'Bezorgen op dit adres'))).click()
+        # ACCEPT SHIPPING METHOD
+        WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
+        # SELECT PAYMENT METHOD
+        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
+        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
+        WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
+        # IF IN PRODUCTION, CONFIRM PURCHASE
+        if in_production:
+            WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'place-your-order-button'))).click()
+        else:
+            print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
+        driver.close()
+        driver.quit()
+        return True
+    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
+        print("[=== Something went wrong while trying to order at Coolblue ===]")
+        driver.close()
+        driver.quit()
         return False
 
 
