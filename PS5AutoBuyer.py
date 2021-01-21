@@ -134,6 +134,11 @@ locations = {
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/?utm_campaign=CPS'
                '&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
         'inStock': False,
+        'outOfStockLabel': "Uitverkocht"},
+      'NEDGAME Digital': {
+        'webshop': 'nedgame',
+        'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/',
+        'inStock': False,
         'outOfStockLabel': "Uitverkocht"}
 }
 
