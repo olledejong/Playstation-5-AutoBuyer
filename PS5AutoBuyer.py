@@ -58,13 +58,33 @@ headers = {
 # =============================== #
 locations = {
     'Amazon NL Disk': {
-        'webshop': 'amazon-nl',
+        'webshop': 'amazon',
         'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce"},
     'Amazon NL Digital': {
-        'webshop': 'amazon-nl',
+        'webshop': 'amazon',
         'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon IT Disk': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.it/Playstation-Sony-PlayStation-5/dp/B08KKJ37F7',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon IT Digital': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.it/Sony-PlayStation-5-Digital-Edition/dp/B08KJF2D25',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon FR Disk': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.fr/PlayStation-%C3%89dition-Standard-DualSense-Couleur/dp/B08H93ZRK9',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon FR Digital': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.fr/PlayStation-Digital-manette-DualSense-Couleur/dp/B08H98GVK8',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce"},
     'Alternate DE Disk': {
@@ -404,7 +424,7 @@ def delegate_purchase(webshop, url, settings):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    if webshop == 'amazon-nl':
+    if webshop == 'amazon':
         return buy_item_at_amazon(initialize_webdriver(url), settings)
     elif webshop == 'coolblue':
         return buy_item_at_coolblue(initialize_webdriver(url), settings)
@@ -435,7 +455,7 @@ def buy_item_at_amazon(driver, settings):
         # ADD TO CART
         WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'add-to-cart-button'))).click()
         # GO TO BASKET
-        driver.get("https://www.amazon.nl/gp/cart/view.html")
+        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'hlb-ptc-btn-native'))).click()
         # ACCEPT BASKET
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-primary'))).click()
         # LOGIN USERNAME
@@ -449,7 +469,7 @@ def buy_item_at_amazon(driver, settings):
             .click(driver.find_element(By.ID, 'signInSubmit')) \
             .perform()
         # ACCEPT SHIPPING ADDRESS
-        WDW(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, 'Bezorgen op dit adres'))).click()
+        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='address-book-entry-0']/div[2]/span/a"))).click()
         # ACCEPT SHIPPING METHOD
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
         # SELECT PAYMENT METHOD
@@ -806,7 +826,7 @@ def main():
                         requests.exceptions.ChunkedEncodingError) as e:
                     print("[=== ERROR ===] [=== {} ===]".format(place))
                     continue
-                if info.get('inOfStockLabel') not in content:
+                if info.get('inStockLabel') not in content:
                     print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
                     info['inStock'] = False
                 else:
