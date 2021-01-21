@@ -79,6 +79,11 @@ locations = {
                '/html/product/1651221?',
         'inStock': False,
         'outOfStockLabel': "Artikel kann nicht gekauft werden"},
+    'COOLBLUE Disk': {
+        'webshop': 'coolblue',
+        'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
+        'inStock': False,
+        'outOfStockLabel': "Tijdelijk uitverkocht"},
     'COOLBLUE Digital': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
@@ -99,17 +104,6 @@ locations = {
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
         'outOfStockLabel': "Online uitverkocht"},
-    'COOLBLUE Disk': {
-        'webshop': 'coolblue',
-        'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
-        'inStock': False,
-        'outOfStockLabel': "Tijdelijk uitverkocht"},
-    'NEDGAME Disk': {
-        'webshop': 'nedgame',
-        'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/?utm_campaign=CPS'
-               '&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
-        'inStock': False,
-        'outOfStockLabel': "Uitverkocht"},
     'MEDIAMARKT Digital': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
@@ -134,7 +128,13 @@ locations = {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
         'inStock': False,
-        'outOfStockLabel': "uitverkocht!"}
+        'outOfStockLabel': "uitverkocht!"},
+    'NEDGAME Disk': {
+        'webshop': 'nedgame',
+        'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/?utm_campaign=CPS'
+               '&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
+        'inStock': False,
+        'outOfStockLabel': "Uitverkocht"}
 }
 
 style = style_from_dict({
