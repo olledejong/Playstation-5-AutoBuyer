@@ -3,6 +3,7 @@
 
 import configparser
 import platform
+import random
 import re
 import sys
 import time
@@ -14,7 +15,6 @@ import six
 from PyInquirer import (Token, ValidationError, Validator, prompt,
                         style_from_dict)
 from notifypy import Notify
-from pyconfigstore import ConfigStore
 from pyfiglet import figlet_format
 from selenium.common import exceptions as SE
 from selenium.webdriver.common.action_chains import ActionChains
@@ -58,125 +58,161 @@ headers = {
 # =============================== #
 locations = {
     'Amazon NL Disk': {
-        'webshop': 'amazon',
+        'webshop': 'amazon-nl',
         'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon NL Digital': {
-        'webshop': 'amazon',
+        'webshop': 'amazon-nl',
         'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon IT Disk': {
-        'webshop': 'amazon',
+        'webshop': 'amazon-it',
         'url': 'https://www.amazon.it/Playstation-Sony-PlayStation-5/dp/B08KKJ37F7',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon IT Digital': {
-        'webshop': 'amazon',
+        'webshop': 'amazon-it',
         'url': 'https://www.amazon.it/Sony-PlayStation-5-Digital-Edition/dp/B08KJF2D25',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon FR Disk': {
-        'webshop': 'amazon',
+        'webshop': 'amazon-fr',
         'url': 'https://www.amazon.fr/PlayStation-%C3%89dition-Standard-DualSense-Couleur/dp/B08H93ZRK9',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon FR Digital': {
-        'webshop': 'amazon',
+        'webshop': 'amazon-fr',
         'url': 'https://www.amazon.fr/PlayStation-Digital-manette-DualSense-Couleur/dp/B08H98GVK8',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    'Amazon ES Disk': {
+        'webshop': 'amazon-es',
+        'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5/dp/B08KKJ37F7',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce",
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    'Amazon ES Digital': {
+        'webshop': 'amazon-es',
+        'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5-Digital/dp/B08KJF2D25',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce",
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    'Amazon DE Disk': {
+        'webshop': 'amazon-de',
+        'url': 'https://www.amazon.de/-/en/dp/B08H93ZRK9/ref=sr_1_1?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-1',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce",
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    'Amazon DE Digital': {
+        'webshop': 'amazon-de',
+        'url': 'https://www.amazon.de/-/en/playstation_4/dp/B08H98GVK8/ref=sr_1_2?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-2',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce",
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    'Amazon UK Disk': {
+        'webshop': 'amazon-uk',
+        'url': 'https://www.amazon.co.uk/PlayStation-9395003-5-Console/dp/B08H95Y452',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce",
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    'Amazon UK Digital': {
+        'webshop': 'amazon-uk',
+        'url': 'https://www.amazon.co.uk/PlayStation-5-Digital-Edition-Console/dp/B08H97NYGP',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce",
+        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Alternate DE Disk': {
         'webshop': 'Alternate.de',
         'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Spielkonsole/html/product/1651220',
         'inStock': False,
         'inStockLabel': "arrow-cart-white_red-right",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'Alternate DE Digital': {
         'webshop': 'Alternate.de',
         'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Digital-Edition-Spielkonsole/html/product/1651221',
         'inStock': False,
         'inStockLabel': "arrow-cart-white_red-right",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'COOLBLUE Disk': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
         'inStock': False,
         'inStockLabel': "In mijn winkelwagen",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'COOLBLUE Digital': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
         'inStock': False,
         'inStockLabel': "In mijn winkelwagen",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'BOL.COM Disk': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-console/9300000004162282/',
         'inStock': False,
         'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'BOL.COM Digital': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-all-digital-console/9300000004162392/',
         'inStock': False,
         'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'MEDIAMARKT Disk': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
         'inStockLabel': "online online-ndd",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'MEDIAMARKT Digital': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
         'inStock': False,
         'inStockLabel': "online online-ndd",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'GAMEMANIA Disk': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/144093_playstation-5-disc-edition',
         'inStock': False,
         'inStockLabel': "AddToCartOverlay",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'GAMEMANIA Digital': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/145721_playstation-5-digital-edition',
         'inStock': False,
         'inStockLabel': "AddToCartOverlay",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'INTERTOYS Disk': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
         'inStock': False,
         'inStockLabel': "productPageAdd2Cart",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
         'inStock': False,
         'inStockLabel': "productPageAdd2Cart",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'NEDGAME Disk': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/',
         'inStock': False,
         'inStockLabel': "AddProductToBasket",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
       'NEDGAME Digital': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/',
         'inStock': False,
         'inStockLabel': "AddProductToBasket",
-        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"}
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"}
 }
 
 style = style_from_dict({
@@ -444,7 +480,7 @@ def delegate_purchase(webshop, url, settings):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    if webshop == 'amazon':
+    if webshop in ['amazon-nl', 'amazon-fr', 'amazon-it']:
         return buy_item_at_amazon(initialize_webdriver(url), settings)
     elif webshop == 'coolblue':
         return buy_item_at_coolblue(initialize_webdriver(url), settings)
@@ -468,6 +504,7 @@ def buy_item_at_amazon(driver, settings):
     production. See the config.ini setting `production`.
 
     :param driver:
+    :param settings:
     """
     try:
         # ACCEPT COOKIES
@@ -521,6 +558,7 @@ def buy_item_at_coolblue(driver, settings):
     production. See the config.ini setting `production`.
 
     :param driver:
+    :param settings:
     """
     try:
         # ACCEPT COOKIES
@@ -794,77 +832,56 @@ def main():
     ordered_items = 0
     # loop until desired amount of ordered items is reached
     while True:
+        times_detected_as_bot = 0
         # ==================================================== #
         # loop through all web-shops where potentially in stock #
         # ==================================================== #
-        for place, info in locations.items():
-            # ========================================== #
-            # item not known to be in stock, check again #
-            # ========================================== #
-            if not info.get('inStock'):
-                try:
-                    content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
-                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
-                        requests.exceptions.ChunkedEncodingError) as e:
-                    print("[=== ERROR ===] [=== {} ===]".format(place))
-                    continue
-                # ================= #
-                # Site bot detected #
-                # ================= #
-                if info.get('botchecklabel') in content:
-                    print("[=== BOT DETECTED ===] [=== {} ===]".format(place))
-                else:
-                    # ======================================== #
-                    # item in stock, proceed to try and buy it #
-                    # ======================================== #
-                    if info.get('inStockLabel') in content:
-                        print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
-                        # if enabled, send sms
-                        if settings.get("sms_notify"):
-                            try:
-                                api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
-                                api.call('sms.send', 'SMS', settings.get("phone"),
-                                         "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
-                            except (callr.CallrException, callr.CallrLocalException) as e:
-                                print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY "
-                                      "OF CALLR CREDENTIALS ===]")
-                        # === NATIVE OS NOTIFICATION === #
-                        if settings.get("natively_notify"):
-                            notification.title = "Item might be in stock at:".format(place)
-                            notification.message = info.get('url')
-                            notification.send()
-                        # === IF ENABLED, BUY ITEM === #
-                        if settings.get("auto_buy"):
-                            ordered_items = auto_buy_item(info, ordered_items, place, settings)
+        for place, info in sorted(locations.items(), key=lambda x: random.random()):
+            try:
+                content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
+            except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
+                    requests.exceptions.ChunkedEncodingError) as e:
+                print("[=== ERROR ===] [=== {} ===]".format(place))
+                continue
+            # ======================================== #
+            # item in stock, proceed to try and buy it #
+            # ======================================== #
+            if info.get('detectedAsBotLabel') not in content and info.get('inStockLabel') in content:
+                print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
+                # === IF ENABLED, SEND SMS === #
+                if settings.get("sms_notify") and not info.get('inStock'):
+                    try:
+                        api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
+                        api.call('sms.send', 'SMS', settings.get("phone"),
+                                 "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
+                    except (callr.CallrException, callr.CallrLocalException) as e:
+                        print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY "
+                              "OF CALLR CREDENTIALS ===]")
+                # === NATIVE OS NOTIFICATION === #
+                if settings.get("natively_notify"):
+                    notification.title = "Item might be in stock at:".format(place)
+                    notification.message = info.get('url')
+                    notification.send()
+                # === IF ENABLED, BUY ITEM === #
+                if settings.get("auto_buy"):
+                    ordered_items = auto_buy_item(info, ordered_items, place, settings)
 
-                        # === SET IN-STOCK TO TRUE === #
-                        info['inStock'] = True
-                    # not in stock
-                    else:
-                        print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
-            # ================================== #
-            # item is in stock, do the following #
-            # ================================== #
+                # === SET IN-STOCK TO TRUE === #
+                info['inStock'] = True
+            elif info.get('detectedAsBotLabel') in content:
+                print("[=== DETECTED AS BOT ===] [=== {} ===]".format(place))
+                times_detected_as_bot += 1
             else:
-                try:
-                    content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
-                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
-                        requests.exceptions.ChunkedEncodingError) as e:
-                    print("[=== ERROR ===] [=== {} ===]".format(place))
-                    continue
-                if info.get('inStockLabel') not in content:
-                    print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
-                    info['inStock'] = False
-                else:
-                    print("[=== STILL IN STOCK! ===] [=== {} ===]".format(place))
-                    if settings.get("auto_buy"):
-                        ordered_items = auto_buy_item(info, ordered_items, place, settings)
+                info['inStock'] = False
+                print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
 
         # =============================== #
         # wait half a minute and go again #
         # =============================== #
-        print("\n Check over. Trying again in 30 seconds..\n")
-        time.sleep(30)
+        time_delta = 18 * random.randint(130, 150) / 100.0
+        print(f"\n Check over. Trying again in {round(time_delta, 2)} seconds..")
+        print(f" Total requests: {len(locations)}. Amount of times detected as bot: {times_detected_as_bot}.\n")
+        time.sleep(time_delta)
 
 
 # start of program
