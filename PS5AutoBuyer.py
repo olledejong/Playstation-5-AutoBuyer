@@ -61,102 +61,122 @@ locations = {
         'webshop': 'amazon',
         'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
         'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce"},
+        'inStockLabel': "submit.add-to-cart-announce",
+        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
     'Amazon NL Digital': {
         'webshop': 'amazon',
         'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
         'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce"},
+        'inStockLabel': "submit.add-to-cart-announce",
+        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
     'Amazon IT Disk': {
         'webshop': 'amazon',
         'url': 'https://www.amazon.it/Playstation-Sony-PlayStation-5/dp/B08KKJ37F7',
         'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce"},
+        'inStockLabel': "submit.add-to-cart-announce",
+        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
     'Amazon IT Digital': {
         'webshop': 'amazon',
         'url': 'https://www.amazon.it/Sony-PlayStation-5-Digital-Edition/dp/B08KJF2D25',
         'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce"},
+        'inStockLabel': "submit.add-to-cart-announce",
+        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
     'Amazon FR Disk': {
         'webshop': 'amazon',
         'url': 'https://www.amazon.fr/PlayStation-%C3%89dition-Standard-DualSense-Couleur/dp/B08H93ZRK9',
         'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce"},
+        'inStockLabel': "submit.add-to-cart-announce",
+        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
     'Amazon FR Digital': {
         'webshop': 'amazon',
         'url': 'https://www.amazon.fr/PlayStation-Digital-manette-DualSense-Couleur/dp/B08H98GVK8',
         'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce"},
+        'inStockLabel': "submit.add-to-cart-announce",
+        'botchecklabel': "To discuss automated access to Amazon data please contact api-services-support@amazon.com."},
     'Alternate DE Disk': {
         'webshop': 'Alternate.de',
         'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Spielkonsole/html/product/1651220',
         'inStock': False,
-        'inStockLabel': "arrow-cart-white_red-right"},
+        'inStockLabel': "arrow-cart-white_red-right",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'Alternate DE Digital': {
         'webshop': 'Alternate.de',
         'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Digital-Edition-Spielkonsole/html/product/1651221',
         'inStock': False,
-        'inStockLabel': "arrow-cart-white_red-right"},
+        'inStockLabel': "arrow-cart-white_red-right",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'COOLBLUE Disk': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
         'inStock': False,
-        'inStockLabel': "In mijn winkelwagen"},
+        'inStockLabel': "In mijn winkelwagen",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'COOLBLUE Digital': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
         'inStock': False,
-        'inStockLabel': "In mijn winkelwagen"},
+        'inStockLabel': "In mijn winkelwagen",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'BOL.COM Disk': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-console/9300000004162282/',
         'inStock': False,
-        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action"},
+        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'BOL.COM Digital': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-all-digital-console/9300000004162392/',
         'inStock': False,
-        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action"},
+        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'MEDIAMARKT Disk': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
-        'inStockLabel': "online online-ndd"},
+        'inStockLabel': "online online-ndd",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'MEDIAMARKT Digital': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
         'inStock': False,
-        'inStockLabel': "online online-ndd"},
+        'inStockLabel': "online online-ndd",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'GAMEMANIA Disk': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/144093_playstation-5-disc-edition',
         'inStock': False,
-        'inStockLabel': "AddToCartOverlay"},
+        'inStockLabel': "AddToCartOverlay",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'GAMEMANIA Digital': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/145721_playstation-5-digital-edition',
         'inStock': False,
-        'inStockLabel': "AddToCartOverlay"},
+        'inStockLabel': "AddToCartOverlay",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'INTERTOYS Disk': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
         'inStock': False,
-        'inStockLabel': "productPageAdd2Cart"},
+        'inStockLabel': "productPageAdd2Cart",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
         'inStock': False,
-        'inStockLabel': "productPageAdd2Cart"},
+        'inStockLabel': "productPageAdd2Cart",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
     'NEDGAME Disk': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/',
         'inStock': False,
-        'inStockLabel': "AddProductToBasket"},
+        'inStockLabel': "AddProductToBasket",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"},
       'NEDGAME Digital': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/',
         'inStock': False,
-        'inStockLabel': "AddProductToBasket"}
+        'inStockLabel': "AddProductToBasket",
+        'botchecklabel': "vul hier een tekst in die zichtbaar is als er een bot gedetecteerd is"}
 }
 
 style = style_from_dict({
@@ -788,34 +808,40 @@ def main():
                         requests.exceptions.ChunkedEncodingError) as e:
                     print("[=== ERROR ===] [=== {} ===]".format(place))
                     continue
-                # ======================================== #
-                # item in stock, proceed to try and buy it #
-                # ======================================== #
-                if info.get('inStockLabel') in content:
-                    print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
-                    # if enabled, send sms
-                    if settings.get("sms_notify"):
-                        try:
-                            api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
-                            api.call('sms.send', 'SMS', settings.get("phone"),
-                                     "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
-                        except (callr.CallrException, callr.CallrLocalException) as e:
-                            print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY "
-                                  "OF CALLR CREDENTIALS ===]")
-                    # === NATIVE OS NOTIFICATION === #
-                    if settings.get("natively_notify"):
-                        notification.title = "Item might be in stock at:".format(place)
-                        notification.message = info.get('url')
-                        notification.send()
-                    # === IF ENABLED, BUY ITEM === #
-                    if settings.get("auto_buy"):
-                        ordered_items = auto_buy_item(info, ordered_items, place, settings)
-
-                    # === SET IN-STOCK TO TRUE === #
-                    info['inStock'] = True
-                # not in stock
+                # ================= #
+                # Site bot detected #
+                # ================= #
+                if info.get('botchecklabel') in content:
+                    print("[=== BOT DETECTED ===] [=== {} ===]".format(place))
                 else:
-                    print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
+                    # ======================================== #
+                    # item in stock, proceed to try and buy it #
+                    # ======================================== #
+                    if info.get('inStockLabel') in content:
+                        print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
+                        # if enabled, send sms
+                        if settings.get("sms_notify"):
+                            try:
+                                api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
+                                api.call('sms.send', 'SMS', settings.get("phone"),
+                                         "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
+                            except (callr.CallrException, callr.CallrLocalException) as e:
+                                print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY "
+                                      "OF CALLR CREDENTIALS ===]")
+                        # === NATIVE OS NOTIFICATION === #
+                        if settings.get("natively_notify"):
+                            notification.title = "Item might be in stock at:".format(place)
+                            notification.message = info.get('url')
+                            notification.send()
+                        # === IF ENABLED, BUY ITEM === #
+                        if settings.get("auto_buy"):
+                            ordered_items = auto_buy_item(info, ordered_items, place, settings)
+
+                        # === SET IN-STOCK TO TRUE === #
+                        info['inStock'] = True
+                    # not in stock
+                    else:
+                        print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
             # ================================== #
             # item is in stock, do the following #
             # ================================== #
