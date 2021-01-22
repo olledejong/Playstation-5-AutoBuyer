@@ -46,7 +46,8 @@ in_production = parser.getboolean("developer", "production")
 notification = Notify()
 
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/87.0.4280.141 Safari/537.36",
     "Accept-Encoding": "gzip, deflate",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1",
     "Connection": "close", "Upgrade-Insecure-Requests": "1"
@@ -57,70 +58,105 @@ headers = {
 # =============================== #
 locations = {
     'Amazon NL Disk': {
-        'webshop': 'amazon-nl',
+        'webshop': 'amazon',
         'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
         'inStock': False,
-        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
+        'inStockLabel': "submit.add-to-cart-announce"},
     'Amazon NL Digital': {
-        'webshop': 'amazon-nl',
+        'webshop': 'amazon',
         'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
         'inStock': False,
-        'outOfStockLabel': "Momenteel niet verkrijgbaar"},
-    'COOLBLUE Digital': {
-        'webshop': 'coolblue',
-        'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon IT Disk': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.it/Playstation-Sony-PlayStation-5/dp/B08KKJ37F7',
         'inStock': False,
-        'outOfStockLabel': "Tijdelijk uitverkocht"},
-    'BOL.COM Disk': {
-        'webshop': 'bol',
-        'url': 'https://www.bol.com/nl/p/sony-playstation-5-console/9300000004162282/?bltg=itm_event%3Dclick%26itm_id%3D2100003024%26itm_lp%3D1%26itm_type%3Dinstrument%26sc_type%3DPAST%26itm_ttd%3DFLEX_BANNER%26mmt_id%3DX9CvykOtXXDLPxSbVx07kgAABU0%26rpgActionId%3D68577%26rpgInstrumentId%3D2100003024%26pg_nm%3Dmain%26slt_id%3D819%26slt_pos%3DA1%26slt_owner%3DRPG%26sc_algo%3DFSL2%26slt_nm%3DFLEX_BANNER%26slt_ttd%3DFLEX_BANNER%26sc_id%3D18201&promo=main_819_PFSL268577_A1_MHP_1_2100003024&bltgh=g3lM1QRpG0EQTBvN6TdM6w.4.5.Banner',
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon IT Digital': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.it/Sony-PlayStation-5-Digital-Edition/dp/B08KJF2D25',
         'inStock': False,
-        'outOfStockLabel': "outofstock-buy-block"},
-    'MEDIAMARKT Disk': {
-        'webshop': 'mediamarkt',
-        'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon FR Disk': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.fr/PlayStation-%C3%89dition-Standard-DualSense-Couleur/dp/B08H93ZRK9',
         'inStock': False,
-        'outOfStockLabel': "Online uitverkocht"},
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Amazon FR Digital': {
+        'webshop': 'amazon',
+        'url': 'https://www.amazon.fr/PlayStation-Digital-manette-DualSense-Couleur/dp/B08H98GVK8',
+        'inStock': False,
+        'inStockLabel': "submit.add-to-cart-announce"},
+    'Alternate DE Disk': {
+        'webshop': 'Alternate.de',
+        'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Spielkonsole/html/product/1651220',
+        'inStock': False,
+        'inStockLabel': "arrow-cart-white_red-right"},
+    'Alternate DE Digital': {
+        'webshop': 'Alternate.de',
+        'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Digital-Edition-Spielkonsole/html/product/1651221',
+        'inStock': False,
+        'inStockLabel': "arrow-cart-white_red-right"},
     'COOLBLUE Disk': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
         'inStock': False,
-        'outOfStockLabel': "Tijdelijk uitverkocht"},
-    'NEDGAME Disk': {
-        'webshop': 'nedgame',
-        'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/?utm_campaign=CPS&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
+        'inStockLabel': "In mijn winkelwagen"},
+    'COOLBLUE Digital': {
+        'webshop': 'coolblue',
+        'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
         'inStock': False,
-        'outOfStockLabel': "Uitverkocht"},
-    'MEDIAMARKT Digital': {
-        'webshop': 'mediamarkt',
-        'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
+        'inStockLabel': "In mijn winkelwagen"},
+    'BOL.COM Disk': {
+        'webshop': 'bol',
+        'url': 'https://www.bol.com/nl/p/sony-playstation-5-console/9300000004162282/',
         'inStock': False,
-        'outOfStockLabel': "Online uitverkocht"},
-    'GAMEMANIA Disk': {
-        'webshop': 'gamemania',
-        'url': 'https://www.gamemania.nl/Consoles/playstation-5/144093_playstation-5-disc-edition',
-        'inStock': False,
-        'outOfStockLabel': "Niet beschikbaar"},
-    'INTERTOYS Disk': {
-        'webshop': 'intertoys',
-        'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
-        'inStock': False,
-        'outOfStockLabel': "uitverkocht!"},
-    'NEDGAME Digital': {
-        'webshop': 'nedgame',
-        'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/?utm_campaign=CPS&utm_medium=referral&utm_source=tradetracker&utm_content=linkgeneratorDeeplink&utm_term=273010',
-        'inStock': False,
-        'outOfStockLabel': "Uitverkocht"},
+        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action"},
     'BOL.COM Digital': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-all-digital-console/9300000004162392/',
         'inStock': False,
-        'outOfStockLabel': "outofstock-buy-block"},
+        'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action"},
+    'MEDIAMARKT Disk': {
+        'webshop': 'mediamarkt',
+        'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
+        'inStock': False,
+        'inStockLabel': "online online-ndd"},
+    'MEDIAMARKT Digital': {
+        'webshop': 'mediamarkt',
+        'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
+        'inStock': False,
+        'inStockLabel': "online online-ndd"},
+    'GAMEMANIA Disk': {
+        'webshop': 'gamemania',
+        'url': 'https://www.gamemania.nl/Consoles/playstation-5/144093_playstation-5-disc-edition',
+        'inStock': False,
+        'inStockLabel': "AddToCartOverlay"},
+    'GAMEMANIA Digital': {
+        'webshop': 'gamemania',
+        'url': 'https://www.gamemania.nl/Consoles/playstation-5/145721_playstation-5-digital-edition',
+        'inStock': False,
+        'inStockLabel': "AddToCartOverlay"},
+    'INTERTOYS Disk': {
+        'webshop': 'intertoys',
+        'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
+        'inStock': False,
+        'inStockLabel': "productPageAdd2Cart"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
         'inStock': False,
-        'outOfStockLabel': "uitverkocht!"}
+        'inStockLabel': "productPageAdd2Cart"},
+    'NEDGAME Disk': {
+        'webshop': 'nedgame',
+        'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/',
+        'inStock': False,
+        'inStockLabel': "AddProductToBasket"},
+      'NEDGAME Digital': {
+        'webshop': 'nedgame',
+        'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/',
+        'inStock': False,
+        'inStockLabel': "AddProductToBasket"}
 }
 
 style = style_from_dict({
@@ -341,8 +377,8 @@ def auto_buy_item(info, ordered_items, place, settings):
                 api.call('sms.send', 'SMS', settings.get("phone"),
                          "Hooray! Item ordered at {}!".format(place), None)
             except (callr.CallrException, callr.CallrLocalException) as e:
-                print(
-                    "[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
+                print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR "
+                      "CREDENTIALS ===]")
         ordered_items += 1
         # if reached max amount of ordered items
         if not ordered_items < settings.get("max_ordered_items"):
@@ -388,7 +424,7 @@ def delegate_purchase(webshop, url, settings):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    if webshop == 'amazon-nl':
+    if webshop == 'amazon':
         return buy_item_at_amazon(initialize_webdriver(url), settings)
     elif webshop == 'coolblue':
         return buy_item_at_coolblue(initialize_webdriver(url), settings)
@@ -419,7 +455,7 @@ def buy_item_at_amazon(driver, settings):
         # ADD TO CART
         WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'add-to-cart-button'))).click()
         # GO TO BASKET
-        driver.get("https://www.amazon.nl/gp/cart/view.html")
+        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'hlb-ptc-btn-native'))).click()
         # ACCEPT BASKET
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-primary'))).click()
         # LOGIN USERNAME
@@ -433,7 +469,7 @@ def buy_item_at_amazon(driver, settings):
             .click(driver.find_element(By.ID, 'signInSubmit')) \
             .perform()
         # ACCEPT SHIPPING ADDRESS
-        WDW(driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, 'Bezorgen op dit adres'))).click()
+        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='address-book-entry-0']/div[2]/span/a"))).click()
         # ACCEPT SHIPPING METHOD
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
         # SELECT PAYMENT METHOD
@@ -448,7 +484,8 @@ def buy_item_at_amazon(driver, settings):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
+    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
+            SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("[=== Something went wrong while trying to order at Coolblue ===]")
         driver.close()
         driver.quit()
@@ -525,8 +562,9 @@ def buy_item_at_coolblue(driver, settings):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at Coolblue ===]")
+    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
+            SE.StaleElementReferenceException, SE.TimeoutException) as e:
+        print("[=== Something went wrong while trying to order at Amazon ===]")
         driver.close()
         driver.quit()
         return False
@@ -594,7 +632,8 @@ def buy_item_at_bol(driver, url, settings):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
+    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
+            SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("[=== Something went wrong while trying to order at BOL.COM ===]")
         driver.close()
         driver.quit()
@@ -668,7 +707,8 @@ def buy_item_at_mediamarkt(driver, settings):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
+    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
+            SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("[=== Something went wrong while trying to order at Mediamarkt ===]")
         driver.close()
         driver.quit()
@@ -684,7 +724,7 @@ def buy_item_at_nedgame(driver, settings):
     production. See the config.ini setting `production`.
 
     :param driver:
-    :param phone:
+    :param settings:
     """
     try:
         WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'koopbutton'))).click()
@@ -708,7 +748,8 @@ def buy_item_at_nedgame(driver, settings):
         driver.close()
         driver.quit()
         return True
-    except (SE.NoSuchElementException, SE.StaleElementReferenceException, SE.TimeoutException) as e:
+    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
+            SE.StaleElementReferenceException, SE.TimeoutException) as e:
         print("[=== Something went wrong while trying to order at Nedgame ===]")
         driver.close()
         driver.quit()
@@ -743,24 +784,24 @@ def main():
             if not info.get('inStock'):
                 try:
                     content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
-                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
+                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
+                        requests.exceptions.ChunkedEncodingError) as e:
                     print("[=== ERROR ===] [=== {} ===]".format(place))
                     continue
                 # ======================================== #
                 # item in stock, proceed to try and buy it #
                 # ======================================== #
-                if info.get('outOfStockLabel') not in content:
+                if info.get('inStockLabel') in content:
                     print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
                     # if enabled, send sms
                     if settings.get("sms_notify"):
                         try:
-
                             api = callr.Api(settings.get("callr_username"), settings.get("callr_password"))
                             api.call('sms.send', 'SMS', settings.get("phone"),
                                      "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
                         except (callr.CallrException, callr.CallrLocalException) as e:
-                            print(
-                                "[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR CREDENTIALS ===]")
+                            print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY "
+                                  "OF CALLR CREDENTIALS ===]")
                     # === NATIVE OS NOTIFICATION === #
                     if settings.get("natively_notify"):
                         notification.title = "Item might be in stock at:".format(place)
@@ -780,11 +821,12 @@ def main():
             # ================================== #
             else:
                 try:
-                    content = requests.get(info.get('url'), timeout=5).content.decode('utf-8')
-                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout) as e:
+                    content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
+                except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
+                        requests.exceptions.ChunkedEncodingError) as e:
                     print("[=== ERROR ===] [=== {} ===]".format(place))
                     continue
-                if info.get('outOfStockLabel') in content:
+                if info.get('inStockLabel') not in content:
                     print("[=== NEW STOCK SOLD OUT ===] [=== {} ===]".format(place))
                     info['inStock'] = False
                 else:

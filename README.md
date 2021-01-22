@@ -71,6 +71,7 @@ Fill out your credentials when you're asked for it.
 #### AUTO-BUY
 Webshop       | Method of payment
 ------------- | -------------
+Amazon        | Your account must have a creditcard configured
 Coolblue      | Bank Transfer
 BOL.COM       | Afterpay (availability depends on account)
 Mediamarkt    | Paypal  
