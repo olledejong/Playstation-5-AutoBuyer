@@ -45,13 +45,12 @@ in_production = parser.getboolean("developer", "production")
 # =================== #
 notification = Notify()
 
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/87.0.4280.141 Safari/537.36",
-    "Accept-Encoding": "gzip, deflate",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1",
-    "Connection": "close", "Upgrade-Insecure-Requests": "1"
-}
+user_agents = ['Mozilla/5.0 CK={} (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
+               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134',
+               'Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1',
+               'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0',
+               'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
+               'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)']
 
 # =============================== #
 # DICTIONARY WITH WEBSHOP DETAILS #
@@ -837,6 +836,13 @@ def main():
         # loop through all web-shops where potentially in stock #
         # ==================================================== #
         for place, info in sorted(locations.items(), key=lambda x: random.random()):
+            # generate headers
+            headers = {
+                "User-Agent": random.choice(user_agents),
+                "Accept-Encoding": "gzip, deflate",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1",
+                "Connection": "close", "Upgrade-Insecure-Requests": "1"
+            }
             try:
                 content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
             except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
