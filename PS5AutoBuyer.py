@@ -16,6 +16,7 @@ from PyInquirer import (Token, ValidationError, Validator, prompt,
                         style_from_dict)
 from notifypy import Notify
 from pyfiglet import figlet_format
+from rich.console import Console
 from selenium.common import exceptions as SE
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
@@ -40,17 +41,19 @@ parser = configparser.ConfigParser()
 parser.read("config.ini")
 in_production = parser.getboolean("developer", "production")
 
-# =================== #
-# INITIALIZE NOTIFIER #
-# =================== #
+# ================ #
+# INITIALIZE STUFF #
+# ================ #
 notification = Notify()
+console = Console()
 
-user_agents = ['Mozilla/5.0 CK={} (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-               'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134',
+user_agents = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134',
                'Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1',
-               'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox/84.0',
                'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
-               'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)']
+               'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)',
+               'Mozilla/5.0 (Windows NT 5.1; rv:36.0) Gecko/20100101 Firefox/36.0',
+               'Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1; 125LA; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)',
+               'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)']
 
 # =============================== #
 # DICTIONARY WITH WEBSHOP DETAILS #
@@ -299,10 +302,9 @@ def ask_to_configure_settings():
     """
     clear_cmdline()
     log("The PS5 AutoBuyer", "white", "larry3d", True)
-    log("Welcome. To get started, please answer the following questions. All information is vital. \nIf it wasn't, "
-        "I wouldn't be asking :). Don't worry about leaking your passwords. This script \nwill run locally on your "
-        "very own machine. I can not, in any way, reach your credentials.\n",
-        "cyan")
+    console.log("[yellow]Welcome. To get started, please answer the following questions. All information is vital. "
+                "If it wasn't, I wouldn't be asking :). Don't worry about leaking your passwords. This script "
+                "will run locally on your very own machine. I can not, in any way, reach your credentials.\n")
 
     questions = [
         {
@@ -396,7 +398,8 @@ def ask_to_configure_settings():
     ]
 
     answers = prompt(questions, style=style)
-    log("\nThank you. Program is starting now!\n", "cyan")
+    print('\n')
+    console.log("[yellow]Thank you. Program is starting now!\n")
 
     return answers
 
@@ -479,10 +482,8 @@ def delegate_purchase(webshop, url, settings):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    if webshop in ['amazon-nl', 'amazon-fr', 'amazon-it', 'amazon-es', 'amazon-de']:
-        return buy_item_at_amazon(initialize_webdriver(url), settings)
-    elif webshop in ['amazon-uk']:
-        return buy_item_at_amazon_uk(initialize_webdriver(url), settings)
+    if webshop in ['amazon-nl', 'amazon-fr', 'amazon-it', 'amazon-es', 'amazon-de', 'amazon-uk']:
+        return buy_item_at_amazon(initialize_webdriver(url), settings, webshop)
     elif webshop == 'coolblue':
         return buy_item_at_coolblue(initialize_webdriver(url), settings)
     elif webshop == 'bol':
@@ -492,11 +493,11 @@ def delegate_purchase(webshop, url, settings):
     elif webshop == 'nedgame':
         return buy_item_at_nedgame(initialize_webdriver(url), settings)
     else:
-        print("Auto-buy is not implemented for {} yet.".format(webshop))
+        console.log("Auto-buy is not implemented for {} yet.".format(webshop))
         return False
 
 
-def buy_item_at_amazon(driver, settings):
+def buy_item_at_amazon(driver, settings, webshop):
     """
     Function that will buy the item from the Amazon webshop.
 
@@ -506,6 +507,7 @@ def buy_item_at_amazon(driver, settings):
 
     :param driver:
     :param settings:
+    :param webshop:
     """
     try:
         # ACCEPT COOKIES
@@ -526,71 +528,27 @@ def buy_item_at_amazon(driver, settings):
             .send_keys_to_element(driver.find_element(By.ID, 'ap_password'), settings.get("amazon_password")) \
             .click(driver.find_element(By.ID, 'signInSubmit')) \
             .perform()
-        # ACCEPT SHIPPING ADDRESS
-        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='address-book-entry-0']/div[2]/span/a"))).click()
-        # ACCEPT SHIPPING METHOD
-        WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
-        # SELECT PAYMENT METHOD
-        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
-        WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
-        WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
+        # PROCESS DIFFERS ONLY FOR AMAZON UK
+        if webshop != 'amazon-uk':
+            # ACCEPT SHIPPING ADDRESS
+            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='address-book-entry-0']/div[2]/span/a"))).click()
+            # ACCEPT SHIPPING METHOD
+            WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
+            # SELECT PAYMENT METHOD
+            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
+            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
+            WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
         # IF IN PRODUCTION, CONFIRM PURCHASE
         if in_production:
             WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'place-your-order-button'))).click()
         else:
-            print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
+            console.log("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
         driver.close()
         driver.quit()
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at Amazon ===]")
-        driver.close()
-        driver.quit()
-        return False
-
-
-def buy_item_at_amazon_uk(driver, settings):
-    """
-    Function that will buy the item from the Amazon webshop.
-
-    This is done by a sequence of interactions on the website, just like
-    a person would normally do. Only actually buys when application is in
-    production. See the config.ini setting `production`.
-
-    :param driver:
-    :param settings:
-    """
-    try:
-        # ACCEPT COOKIES
-        driver.find_element_by_id("sp-cc-accept").click()
-        # ADD TO CART
-        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'add-to-cart-button'))).click()
-        # GO TO BASKET
-        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'hlb-ptc-btn-native'))).click()
-        # ACCEPT BASKET
-        WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-primary'))).click()
-        # LOGIN USERNAME
-        ActionChains(driver).pause(1) \
-            .send_keys_to_element(driver.find_element(By.ID, 'ap_email'), settings.get("email")) \
-            .click(driver.find_element(By.ID, 'continue')) \
-            .perform()
-        # LOGIN PASSWORD
-        ActionChains(driver).pause(1) \
-            .send_keys_to_element(driver.find_element(By.ID, 'ap_password'), settings.get("amazon_password")) \
-            .click(driver.find_element(By.ID, 'signInSubmit')) \
-            .perform()
-        # IF IN PRODUCTION, CONFIRM PURCHASE
-        if in_production:
-            WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'place-your-order-button'))).click()
-        else:
-            print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
-        driver.close()
-        driver.quit()
-        return True
-    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
-            SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at Amazon ===]")
+        console.log("[ Something went wrong while trying to order at Amazon ]")
         driver.close()
         driver.quit()
         return False
@@ -663,13 +621,13 @@ def buy_item_at_coolblue(driver, settings):
             WDW(driver, 10).until(EC.presence_of_element_located(
                 (By.XPATH, "//*[@id='main-content']/div/div[4]/div/div/div[1]/div[2]/button"))).click()
         else:
-            print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
+            print("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
         driver.close()
         driver.quit()
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at Amazon ===]")
+        print("[ Something went wrong while trying to order at Amazon ]")
         driver.close()
         driver.quit()
         return False
@@ -733,13 +691,13 @@ def buy_item_at_bol(driver, url, settings):
             # confirm
             driver.find_element(By.XPATH, '//*[@id="executepayment"]/form/div/button').click()
         else:
-            print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
+            print("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
         driver.close()
         driver.quit()
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at BOL.COM ===]")
+        print("[ Something went wrong while trying to order at BOL.COM ]")
         driver.close()
         driver.quit()
         return False
@@ -807,14 +765,14 @@ def buy_item_at_mediamarkt(driver, settings):
         if in_production:
             WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'confirmButtonTop'))).click()
         else:
-            print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
+            print("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
         # QUIT
         driver.close()
         driver.quit()
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at Mediamarkt ===]")
+        print("[ Something went wrong while trying to order at Mediamarkt ]")
         driver.close()
         driver.quit()
         return False
@@ -855,7 +813,7 @@ def buy_item_at_nedgame(driver, settings):
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at Nedgame ===]")
+        print("[ Something went wrong while trying to order at Nedgame ]")
         driver.close()
         driver.quit()
         return False
@@ -879,14 +837,16 @@ def main():
     ordered_items = 0
     # loop until desired amount of ordered items is reached
     while True:
+        detected_as_bot = []
         times_detected_as_bot = 0
         # ==================================================== #
         # loop through all web-shops where potentially in stock #
         # ==================================================== #
         for place, info in sorted(locations.items(), key=lambda x: random.random()):
             # generate headers
+            user_agent = random.choice(user_agents)
             headers = {
-                "User-Agent": random.choice(user_agents),
+                "User-Agent": user_agent,
                 "Accept-Encoding": "gzip, deflate",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1",
                 "Connection": "close", "Upgrade-Insecure-Requests": "1"
@@ -895,13 +855,13 @@ def main():
                 content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
             except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
                     requests.exceptions.ChunkedEncodingError) as e:
-                print("[=== ERROR ===] [=== {} ===]".format(place))
+                console.log(f"[ [bold red]REQUEST ERROR[/] ] [ {place} ]")
                 continue
             # ======================================== #
             # item in stock, proceed to try and buy it #
             # ======================================== #
             if info.get('detectedAsBotLabel') not in content and info.get('inStockLabel') in content:
-                print("[=== OMG, MIGHT BE IN STOCK! ===] [=== {} ===]".format(place))
+                console.log(f"[ [bold green]OMG, IN STOCK![/] ] [ {place} ]")
                 # === IF ENABLED, SEND SMS === #
                 if settings.get("sms_notify") and not info.get('inStock'):
                     try:
@@ -909,8 +869,7 @@ def main():
                         api.call('sms.send', 'SMS', settings.get("phone"),
                                  "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
                     except (callr.CallrException, callr.CallrLocalException) as e:
-                        print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY "
-                              "OF CALLR CREDENTIALS ===]")
+                        console.log("[ [red bold]SENDING SMS FAILED[/] ] [ CHECK ACCOUNT BALANCE AND CALLR CREDENTIALS ]")
                 # === NATIVE OS NOTIFICATION === #
                 if settings.get("natively_notify"):
                     notification.title = "Item might be in stock at:".format(place)
@@ -923,19 +882,18 @@ def main():
                 # === SET IN-STOCK TO TRUE === #
                 info['inStock'] = True
             elif info.get('detectedAsBotLabel') in content:
-                print("[=== DETECTED AS BOT ===] [=== {} ===]".format(place))
+                detected_as_bot.append(place)
+                console.log(f"[ [bold red]DETECTED AS BOT[/] ] [ {place} ]")
                 times_detected_as_bot += 1
             else:
                 info['inStock'] = False
-                print("[=== OUT OF STOCK ===] [=== {} ===]".format(place))
+                console.log(f"[ OUT OF STOCK ] [ {place} ]")
+            time.sleep(random.randint(80, 100) / 100.0)
 
-        # =============================== #
-        # wait half a minute and go again #
-        # =============================== #
-        time_delta = 18 * random.randint(130, 150) / 100.0
-        print(f"\n Check over. Trying again in {round(time_delta, 2)} seconds..")
-        print(f" Total requests: {len(locations)}. Amount of times detected as bot: {times_detected_as_bot}.\n")
-        time.sleep(time_delta)
+        # print report
+        print('\n')
+        console.log(f"Total requests: [bold red]{len(locations)}[/]. Amount of times detected as bot: "
+                    f"[bold red]{times_detected_as_bot}[/].\nFor pages: [bold red]{detected_as_bot}\n")
 
 
 # start of program
