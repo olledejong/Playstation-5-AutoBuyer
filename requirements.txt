@@ -9,3 +9,4 @@ PyInquirer~=1.0.3
 pyconfigstore3~=1.0.1
 termcolor~=1.1.0
 six~=1.15.0
+rich~=9.8.2
