@@ -479,8 +479,10 @@ def delegate_purchase(webshop, url, settings):
     a function is called that executes the ordering sequence for that specific
     webshop. That is, if it is implemented / possible for that webshop.
     """
-    if webshop in ['amazon-nl', 'amazon-fr', 'amazon-it']:
+    if webshop in ['amazon-nl', 'amazon-fr', 'amazon-it', 'amazon-es', 'amazon-de']:
         return buy_item_at_amazon(initialize_webdriver(url), settings)
+    elif webshop in ['amazon-uk']:
+        return buy_item_at_amazon_uk(initialize_webdriver(url), settings)
     elif webshop == 'coolblue':
         return buy_item_at_coolblue(initialize_webdriver(url), settings)
     elif webshop == 'bol':
@@ -542,7 +544,53 @@ def buy_item_at_amazon(driver, settings):
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[=== Something went wrong while trying to order at Coolblue ===]")
+        print("[=== Something went wrong while trying to order at Amazon ===]")
+        driver.close()
+        driver.quit()
+        return False
+
+
+def buy_item_at_amazon_uk(driver, settings):
+    """
+    Function that will buy the item from the Amazon webshop.
+
+    This is done by a sequence of interactions on the website, just like
+    a person would normally do. Only actually buys when application is in
+    production. See the config.ini setting `production`.
+
+    :param driver:
+    :param settings:
+    """
+    try:
+        # ACCEPT COOKIES
+        driver.find_element_by_id("sp-cc-accept").click()
+        # ADD TO CART
+        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'add-to-cart-button'))).click()
+        # GO TO BASKET
+        WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'hlb-ptc-btn-native'))).click()
+        # ACCEPT BASKET
+        WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-primary'))).click()
+        # LOGIN USERNAME
+        ActionChains(driver).pause(1) \
+            .send_keys_to_element(driver.find_element(By.ID, 'ap_email'), settings.get("email")) \
+            .click(driver.find_element(By.ID, 'continue')) \
+            .perform()
+        # LOGIN PASSWORD
+        ActionChains(driver).pause(1) \
+            .send_keys_to_element(driver.find_element(By.ID, 'ap_password'), settings.get("amazon_password")) \
+            .click(driver.find_element(By.ID, 'signInSubmit')) \
+            .perform()
+        # IF IN PRODUCTION, CONFIRM PURCHASE
+        if in_production:
+            WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'place-your-order-button'))).click()
+        else:
+            print("[=== Confirmation of order prevented. Application not in production ===] [=== See config.ini ===]")
+        driver.close()
+        driver.quit()
+        return True
+    except (SE.NoSuchElementException, SE.ElementNotInteractableException,
+            SE.StaleElementReferenceException, SE.TimeoutException) as e:
+        print("[=== Something went wrong while trying to order at Amazon ===]")
         driver.close()
         driver.quit()
         return False
