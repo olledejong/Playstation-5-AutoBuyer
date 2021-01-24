@@ -47,13 +47,16 @@ in_production = parser.getboolean("developer", "production")
 notification = Notify()
 console = Console()
 
-user_agents = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/17.17134',
-               'Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1',
-               'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
-               'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.1.4322)',
-               'Mozilla/5.0 (Windows NT 5.1; rv:36.0) Gecko/20100101 Firefox/36.0',
-               'Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1; 125LA; .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022)',
-               'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)']
+with open('resources\\user-agents.txt') as f:
+    user_agents = f.read().splitlines()
+
+referers = [
+    'http://www.bing.com/',
+    'http://www.google.com/',
+    'https://search.yahoo.com/',
+    'http://www.baidu.com/',
+    'https://duckduckgo.com/'
+]
 
 # =============================== #
 # DICTIONARY WITH WEBSHOP DETAILS #
@@ -64,156 +67,182 @@ locations = {
         'url': 'https://www.amazon.nl/Sony-PlayStation-PlayStation%C2%AE5-Console/dp/B08H93ZRK9',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Momenteel niet verkrijgbaar",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon NL Digital': {
         'webshop': 'amazon-nl',
         'url': 'https://www.amazon.nl/Sony-PlayStation-playstation_4-PlayStation%C2%AE5-Digital/dp/B08H98GVK8',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Momenteel niet verkrijgbaar",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon IT Disk': {
         'webshop': 'amazon-it',
         'url': 'https://www.amazon.it/Playstation-Sony-PlayStation-5/dp/B08KKJ37F7',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Non disponibile",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon IT Digital': {
         'webshop': 'amazon-it',
         'url': 'https://www.amazon.it/Sony-PlayStation-5-Digital-Edition/dp/B08KJF2D25',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Non disponibile",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon FR Disk': {
         'webshop': 'amazon-fr',
         'url': 'https://www.amazon.fr/PlayStation-%C3%89dition-Standard-DualSense-Couleur/dp/B08H93ZRK9',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Actuellement indisponible",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon FR Digital': {
         'webshop': 'amazon-fr',
         'url': 'https://www.amazon.fr/PlayStation-Digital-manette-DualSense-Couleur/dp/B08H98GVK8',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Actuellement indisponible",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon ES Disk': {
         'webshop': 'amazon-es',
         'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5/dp/B08KKJ37F7',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "No disponible",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon ES Digital': {
         'webshop': 'amazon-es',
         'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5-Digital/dp/B08KJF2D25',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "No disponible",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon DE Disk': {
         'webshop': 'amazon-de',
         'url': 'https://www.amazon.de/-/en/dp/B08H93ZRK9/ref=sr_1_1?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-1',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Artikel kann nicht gekauft werden",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon DE Digital': {
         'webshop': 'amazon-de',
         'url': 'https://www.amazon.de/-/en/playstation_4/dp/B08H98GVK8/ref=sr_1_2?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-2',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Artikel kann nicht gekauft werden",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon UK Disk': {
         'webshop': 'amazon-uk',
         'url': 'https://www.amazon.co.uk/PlayStation-9395003-5-Console/dp/B08H95Y452',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Currently unavailable",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon UK Digital': {
         'webshop': 'amazon-uk',
         'url': 'https://www.amazon.co.uk/PlayStation-5-Digital-Edition-Console/dp/B08H97NYGP',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
+        'outOfStockLabel': "Currently unavailable",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Alternate DE Disk': {
         'webshop': 'Alternate.de',
         'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Spielkonsole/html/product/1651220',
         'inStock': False,
         'inStockLabel': "arrow-cart-white_red-right",
+        'outOfStockLabel': "Artikel kann nicht gekauft werden",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'Alternate DE Digital': {
         'webshop': 'Alternate.de',
         'url': 'https://www.alternate.de/Sony-Interactive-Entertainment/PlayStation-5-Digital-Edition-Spielkonsole/html/product/1651221',
         'inStock': False,
         'inStockLabel': "arrow-cart-white_red-right",
+        'outOfStockLabel': "Artikel kann nicht gekauft werden",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'COOLBLUE Disk': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865866/playstation-5.html',
         'inStock': False,
         'inStockLabel': "In mijn winkelwagen",
+        'outOfStockLabel': "Tijdelijk uitverkocht",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'COOLBLUE Digital': {
         'webshop': 'coolblue',
         'url': 'https://www.coolblue.nl/product/865867/playstation-5-digital-edition.html',
         'inStock': False,
         'inStockLabel': "In mijn winkelwagen",
+        'outOfStockLabel': "Tijdelijk uitverkocht",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'BOL.COM Disk': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-console/9300000004162282/',
         'inStock': False,
         'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action",
+        'outOfStockLabel': "outofstock-buy-block",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'BOL.COM Digital': {
         'webshop': 'bol',
         'url': 'https://www.bol.com/nl/p/sony-playstation-5-all-digital-console/9300000004162392/',
         'inStock': False,
         'inStockLabel': "btn btn--cta btn--buy btn--lg ] js_floating_basket_btn js_btn_buy js_preventable_buy_action",
+        'outOfStockLabel': "outofstock-buy-block",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'MEDIAMARKT Disk': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
         'inStockLabel': "online online-ndd",
+        'outOfStockLabel': "Online uitverkocht",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'MEDIAMARKT Digital': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
         'inStock': False,
         'inStockLabel': "online online-ndd",
+        'outOfStockLabel': "Online uitverkocht",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'GAMEMANIA Disk': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/144093_playstation-5-disc-edition',
         'inStock': False,
         'inStockLabel': "AddToCartOverlay",
+        'outOfStockLabel': "Niet beschikbaar",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'GAMEMANIA Digital': {
         'webshop': 'gamemania',
         'url': 'https://www.gamemania.nl/Consoles/playstation-5/145721_playstation-5-digital-edition',
         'inStock': False,
         'inStockLabel': "AddToCartOverlay",
+        'outOfStockLabel': "Niet beschikbaar",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'INTERTOYS Disk': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
         'inStock': False,
         'inStockLabel': "productPageAdd2Cart",
+        'outOfStockLabel': "uitverkocht!",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
         'inStock': False,
         'inStockLabel': "productPageAdd2Cart",
+        'outOfStockLabel': "uitverkocht!",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'NEDGAME Disk': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/',
         'inStock': False,
         'inStockLabel': "AddProductToBasket",
+        'outOfStockLabel': "Uitverkocht",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
-      'NEDGAME Digital': {
+    'NEDGAME Digital': {
         'webshop': 'nedgame',
         'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/',
         'inStock': False,
         'inStockLabel': "AddProductToBasket",
+        'outOfStockLabel': "Uitverkocht",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"}
 }
 
@@ -531,12 +560,15 @@ def buy_item_at_amazon(driver, settings, webshop):
         # PROCESS DIFFERS ONLY FOR AMAZON UK
         if webshop != 'amazon-uk':
             # ACCEPT SHIPPING ADDRESS
-            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//*[@id='address-book-entry-0']/div[2]/span/a"))).click()
+            WDW(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//*[@id='address-book-entry-0']/div[2]/span/a"))).click()
             # ACCEPT SHIPPING METHOD
             WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
             # SELECT PAYMENT METHOD
-            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
-            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
+            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH,
+                                                                  '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
+            WDW(driver, 10).until(EC.presence_of_element_located((By.XPATH,
+                                                                  '/html/body/div[5]/div/div[2]/div[2]/div/div[2]/div/form/div/div/div/div[3]/div[2]/div/div/div/div/div/div/span/div/label/input'))).click()
             WDW(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'a-button-text'))).click()
         # IF IN PRODUCTION, CONFIRM PURCHASE
         if in_production:
@@ -833,7 +865,8 @@ def main():
     """
     # get settings
     settings = ask_to_configure_settings()
-
+    user_agent = random.choice(user_agents)
+    referer = random.choice(referers)
     ordered_items = 0
     # loop until desired amount of ordered items is reached
     while True:
@@ -844,11 +877,17 @@ def main():
         # ==================================================== #
         for place, info in sorted(locations.items(), key=lambda x: random.random()):
             # generate headers
-            user_agent = random.choice(user_agents)
+            # user_agent = random.choice(user_agents)
             headers = {
                 "User-Agent": user_agent,
                 "Accept-Encoding": "gzip, deflate",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", "DNT": "1",
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+                'sec-fetch-site': 'same-origin',
+                'sec-fetch-mode': 'navigate',
+                'sec-fetch-user': '?1',
+                'sec-fetch-dest': 'document',
+                'referer': referer,
                 "Connection": "close", "Upgrade-Insecure-Requests": "1"
             }
             try:
@@ -860,7 +899,9 @@ def main():
             # ======================================== #
             # item in stock, proceed to try and buy it #
             # ======================================== #
-            if info.get('detectedAsBotLabel') not in content and info.get('inStockLabel') in content:
+            if (info.get('detectedAsBotLabel') not in content and
+                    info.get('outOfStockLabel') not in content and
+                    info.get('inStockLabel') in content):
                 console.log(f"[ [bold green]OMG, IN STOCK![/] ] [ {place} ]")
                 # === IF ENABLED, SEND SMS === #
                 if settings.get("sms_notify") and not info.get('inStock'):
@@ -869,7 +910,8 @@ def main():
                         api.call('sms.send', 'SMS', settings.get("phone"),
                                  "Item might be in stock at {}. URL: {}".format(place, info.get('url')), None)
                     except (callr.CallrException, callr.CallrLocalException) as e:
-                        console.log("[ [red bold]SENDING SMS FAILED[/] ] [ CHECK ACCOUNT BALANCE AND CALLR CREDENTIALS ]")
+                        console.log(
+                            "[ [red bold]SENDING SMS FAILED[/] ] [ CHECK ACCOUNT BALANCE AND CALLR CREDENTIALS ]")
                 # === NATIVE OS NOTIFICATION === #
                 if settings.get("natively_notify"):
                     notification.title = "Item might be in stock at:".format(place)
@@ -885,10 +927,13 @@ def main():
                 detected_as_bot.append(place)
                 console.log(f"[ [bold red]DETECTED AS BOT[/] ] [ {place} ]")
                 times_detected_as_bot += 1
+                # rotate headers stuff
+                user_agent = random.choice(user_agents)
+                referer = random.choice(referers)
             else:
                 info['inStock'] = False
                 console.log(f"[ OUT OF STOCK ] [ {place} ]")
-            time.sleep(random.randint(80, 100) / 100.0)
+            time.sleep(random.randint(45, 85) / 100.0)
 
         # print report
         print('\n')
