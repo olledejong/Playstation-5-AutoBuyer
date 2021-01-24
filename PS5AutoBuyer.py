@@ -261,7 +261,7 @@ class EmailValidator(Validator):
     """
     Checks if the input is a valid email address
     """
-    pattern = r"\"?([-a-zA-Z0-9.`?{}]+@\w+\.\w+)\"?"
+    pattern = r"\"?([-a-zA-Z0-9._`?{}]+@\w+\.\w+)\"?"
 
     def validate(self, email):
         if len(email.text):
