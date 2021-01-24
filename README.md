@@ -58,22 +58,22 @@ python3 PS5AutoBuyer.py
 ### Configuring the settings
 Answer the questions to setup the application. The different settings are explained below.
 
-#### NATIVELY NOTIFY
+#### Natively notifying
 Windows as well as MacOS both have a way of natively notifying the user when there is important information the be known.
 To be natively notified when a PS5 is in stock, or when a PS5 is ordered, turn this feature on.
 
-#### SMS NOTIFY
+#### Text notifying
 This might come in handy when you're not at home, you have auto-buy enabled, but the purchase somehow fails.   
 If you would like to be notified via text/SMS when a PS5 is in stock or when a PS5 is ordered, turn this feature on.  
 Furthermore, if you want to use the SMS notify feature, make sure you have a [callr](https://www.callr.com/) account with credit on it.   
 Fill out your credentials when you're asked for it. 
 
-#### AUTO-BUY
+#### Auto-buying
 Webshop       | Method of payment
 ------------- | -------------
 Amazon        | Your account must have a creditcard configured
+BOL.COM       | Your account must have a creditcard configured
 Coolblue      | Bank Transfer
-BOL.COM       | Afterpay (availability depends on account)
 Mediamarkt    | Paypal  
 Nedgame       | Afterpay (phone number needed)
 Gamemania     | *To be implemented* 
@@ -84,7 +84,7 @@ This feature allows for automatic purchase of the items. To be able to make the 
 you will need to have an account at each of the webshops. For the purchase at some locations, you will need to have a paypal account. 
 To make use of this feature, please answer the questions. **Be aware of typos**.
 
-#### MAX AMOUNT OF ORDERED ITEMS
+#### Max amount of ordered items
 Clearly, for most of you reading this, you do not want to spend your entire bank account on only Playstation 5 consoles. 
 Because of that, there is a setting through which you can tell the program how many consoles it is allowed to purchase.
 
