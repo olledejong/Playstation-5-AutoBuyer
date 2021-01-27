@@ -120,17 +120,17 @@ locations = {
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon DE Disk': {
         'webshop': 'amazon-de',
-        'url': 'https://www.amazon.de/-/en/dp/B08H93ZRK9/ref=sr_1_1?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-1',
+        'url': 'https://www.amazon.de/-/de/dp/B08H93ZRK9/',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "Artikel kann nicht gekauft werden",
+        'outOfStockLabel': "Derzeit nicht verfügbar.",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon DE Digital': {
         'webshop': 'amazon-de',
-        'url': 'https://www.amazon.de/-/en/playstation_4/dp/B08H98GVK8/ref=sr_1_2?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-2',
+        'url': 'https://www.amazon.de/-/de/playstation_4/dp/B08H98GVK8/',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "Artikel kann nicht gekauft werden",
+        'outOfStockLabel': "Derzeit nicht verfügbar.",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon UK Disk': {
         'webshop': 'amazon-uk',
@@ -930,9 +930,11 @@ def main():
                 # rotate headers stuff
                 user_agent = random.choice(user_agents)
                 referer = random.choice(referers)
-            else:
+            elif info.get('outOfStockLabel') in content:
                 info['inStock'] = False
                 console.log(f"[ OUT OF STOCK ] [ {place} ]")
+            else:
+                console.log(f"[ [bold red]ERROR IN PAGE[/] ] [ {place} ]")
             time.sleep(random.randint(45, 85) / 100.0)
 
         # print report
