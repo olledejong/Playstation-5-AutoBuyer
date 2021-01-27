@@ -120,17 +120,17 @@ locations = {
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon DE Disk': {
         'webshop': 'amazon-de',
-        'url': 'https://www.amazon.de/-/en/dp/B08H93ZRK9/ref=sr_1_1?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-1',
+        'url': 'https://www.amazon.de/-/de/dp/B08H93ZRK9/',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "Artikel kann nicht gekauft werden",
+        'outOfStockLabel': "Derzeit nicht verfügbar.",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon DE Digital': {
         'webshop': 'amazon-de',
-        'url': 'https://www.amazon.de/-/en/playstation_4/dp/B08H98GVK8/ref=sr_1_2?brr=1&dchild=1&qid=1611316298&rd=1&s=videogames&sr=1-2',
+        'url': 'https://www.amazon.de/-/de/playstation_4/dp/B08H98GVK8/',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "Artikel kann nicht gekauft werden",
+        'outOfStockLabel': "Derzeit nicht verfügbar.",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon UK Disk': {
         'webshop': 'amazon-uk',
@@ -925,7 +925,7 @@ def main():
                 info['inStock'] = True
             elif info.get('detectedAsBotLabel') in content:
                 detected_as_bot.append(place)
-                console.log(f"[ [bold red]DETECTED AS BOT[/] ] [ {place} ] [ {user_agent} ] [ {referer} ]")
+                console.log(f"[ [bold red]DETECTED AS BOT[/] ] [ {place} ]")
                 times_detected_as_bot += 1
                 # rotate headers stuff
                 user_agent = random.choice(user_agents)
