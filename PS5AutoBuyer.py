@@ -925,14 +925,16 @@ def main():
                 info['inStock'] = True
             elif info.get('detectedAsBotLabel') in content:
                 detected_as_bot.append(place)
-                console.log(f"[ [bold red]DETECTED AS BOT[/] ] [ {place} ]")
+                console.log(f"[ [bold red]DETECTED AS BOT[/] ] [ {place} ] [ {user_agent} ] [ {referer} ]")
                 times_detected_as_bot += 1
                 # rotate headers stuff
                 user_agent = random.choice(user_agents)
                 referer = random.choice(referers)
-            else:
+            elif info.get('outOfStockLabel') in content:
                 info['inStock'] = False
                 console.log(f"[ OUT OF STOCK ] [ {place} ]")
+            else:
+                console.log(f"[ [bold red]ERROR IN PAGE[/] ] [ {place} ]")
             time.sleep(random.randint(45, 85) / 100.0)
 
         # print report
