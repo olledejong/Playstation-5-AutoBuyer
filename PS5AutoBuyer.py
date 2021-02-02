@@ -49,6 +49,7 @@ console = Console()
 
 with open('resources\\user-agents.txt') as f:
     user_agents = f.read().splitlines()
+    f.close()
 
 referers = [
     'http://www.bing.com/',
@@ -90,13 +91,13 @@ locations = {
         'inStockLabel': "submit.add-to-cart-announce",
         'outOfStockLabel': "Non disponibile",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
-    'Amazon FR Disk': {
-        'webshop': 'amazon-fr',
-        'url': 'https://www.amazon.fr/PlayStation-%C3%89dition-Standard-DualSense-Couleur/dp/B08H93ZRK9',
-        'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "Actuellement indisponible",
-        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    # 'Amazon FR Disk': {
+    #     'webshop': 'amazon-fr',
+    #     'url': 'https://www.amazon.fr/PlayStation-%C3%89dition-Standard-DualSense-Couleur/dp/B08H93ZRK9/ref=sr_1_1?dchild=1&keywords=Ps5%2BConsole&qid=1612288164&sr=8-1&th=1',
+    #     'inStock': False,
+    #     'inStockLabel': "submit.add-to-cart-announce",
+    #     'outOfStockLabel': "Actuellement indisponible",
+    #     'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon FR Digital': {
         'webshop': 'amazon-fr',
         'url': 'https://www.amazon.fr/PlayStation-Digital-manette-DualSense-Couleur/dp/B08H98GVK8',
@@ -123,14 +124,14 @@ locations = {
         'url': 'https://www.amazon.de/-/de/dp/B08H93ZRK9/',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "Derzeit nicht verfügbar.",
+        'outOfStockLabel': "Derzeit nicht",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon DE Digital': {
         'webshop': 'amazon-de',
         'url': 'https://www.amazon.de/-/de/playstation_4/dp/B08H98GVK8/',
         'inStock': False,
         'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "Derzeit nicht verfügbar.",
+        'outOfStockLabel': "Derzeit nicht",
         'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     'Amazon UK Disk': {
         'webshop': 'amazon-uk',
@@ -216,13 +217,13 @@ locations = {
         'inStockLabel': "AddToCartOverlay",
         'outOfStockLabel': "Niet beschikbaar",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
-    'INTERTOYS Disk': {
-        'webshop': 'intertoys',
-        'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
-        'inStock': False,
-        'inStockLabel': "productPageAdd2Cart",
-        'outOfStockLabel': "uitverkocht!",
-        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
+    # 'INTERTOYS Disk': {
+    #     'webshop': 'intertoys',
+    #     'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
+    #     'inStock': False,
+    #     'inStockLabel': "productPageAdd2Cart",
+    #     'outOfStockLabel': "uitverkocht!",
+    #     'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
