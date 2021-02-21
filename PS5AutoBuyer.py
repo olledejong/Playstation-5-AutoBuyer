@@ -2,11 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import configparser
+import os
 import platform
 import random
 import re
+import string
 import sys
-import time
+import aiohttp
+import asyncio
 from os import system, name
 
 import callr
@@ -46,6 +49,8 @@ in_production = parser.getboolean("developer", "production")
 # ================ #
 notification = Notify()
 console = Console()
+ordered_items = 0
+global_shutdown_flag = False
 
 with open('resources\\user-agents.txt') as f:
     user_agents = f.read().splitlines()
@@ -58,6 +63,10 @@ referers = [
     'http://www.baidu.com/',
     'https://duckduckgo.com/'
 ]
+
+# asyncio error workaround (issue is stated on their github)
+if sys.version_info[0] == 3 and sys.version_info[1] >= 8 and sys.platform.startswith('win'):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # =============================== #
 # DICTIONARY WITH WEBSHOP DETAILS #
@@ -217,13 +226,13 @@ locations = {
         'inStockLabel': "AddToCartOverlay",
         'outOfStockLabel': "Niet beschikbaar",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
-    # 'INTERTOYS Disk': {
-    #     'webshop': 'intertoys',
-    #     'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
-    #     'inStock': False,
-    #     'inStockLabel': "productPageAdd2Cart",
-    #     'outOfStockLabel': "uitverkocht!",
-    #     'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
+    'INTERTOYS Disk': {
+        'webshop': 'intertoys',
+        'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
+        'inStock': False,
+        'inStockLabel': "productPageAdd2Cart",
+        'outOfStockLabel': "uitverkocht!",
+        'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
@@ -448,13 +457,13 @@ def log(string, color, font="slant", figlet=False):
         six.print_(string)
 
 
-def auto_buy_item(info, ordered_items, place, settings):
+async def auto_buy_item(info, ordered_items, place, settings):
     """
     Proceeds to auto-buy the item that is in stock. Notifies the
     user if notifications are enabled.
     """
-    if delegate_purchase(info.get('webshop'), info.get('url'), settings):
-        print("[=== ITEM ORDERED, HOORAY! ===] [=== {} ===]".format(place))
+    if await delegate_purchase(info.get('webshop'), info.get('url'), settings):
+        console.log("[ [bold green]ITEM ORDERED![/] ] [ {} ]".format(place))
         if settings.get("natively_notify"):
             notification.title = "Hooray, item ordered at {}".format(place)
             notification.message = "Check your email for a confirmation of your order"
@@ -465,13 +474,14 @@ def auto_buy_item(info, ordered_items, place, settings):
                 api.call('sms.send', 'SMS', settings.get("phone"),
                          "Hooray! Item ordered at {}!".format(place), None)
             except (callr.CallrException, callr.CallrLocalException) as e:
-                print("[=== ERROR ===] [=== SENDING SMS FAILED ===] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR "
-                      "CREDENTIALS ===]")
+                console.log("[ ERROR ] [ SENDING SMS FAILED ] [ CHECK ACCOUNT BALANCE AND VALIDITY OF CALLR "
+                            "CREDENTIALS ]")
         ordered_items += 1
         # if reached max amount of ordered items
         if not ordered_items < settings.get("max_ordered_items"):
-            print("[=== Desired amount of ordered items reached! ===] [=== Bye! ===]")
-            sys.exit(0)
+            console.log("[ [bold blue]WISHES FULFILLED[/] ] [ [bold blue]BYE![/] ]")
+            global global_shutdown_flag
+            global_shutdown_flag = True
     return ordered_items
 
 
@@ -495,16 +505,17 @@ def initialize_webdriver(url):
         from selenium.webdriver import Chrome, ChromeOptions
         options = ChromeOptions()
         options.use_chromium = True
-        options.headless = True
-        driver = Chrome(parser.get("driver", "path_to_driver"), options=options)
+        options.headless = False
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        driver = Chrome(parser.get("driver", "path_to_driver", ), options=options)
     else:
-        print("Only Windows and MacOS are supported. Terminating.")
+        console.log("Only Windows and MacOS are supported. Terminating.")
         sys.exit(0)
     driver.get(url)
     return driver
 
 
-def delegate_purchase(webshop, url, settings):
+async def delegate_purchase(webshop, url, settings):
     """
     Function that delegates the automatically ordering of items
 
@@ -513,21 +524,21 @@ def delegate_purchase(webshop, url, settings):
     webshop. That is, if it is implemented / possible for that webshop.
     """
     if webshop in ['amazon-nl', 'amazon-fr', 'amazon-it', 'amazon-es', 'amazon-de', 'amazon-uk']:
-        return buy_item_at_amazon(initialize_webdriver(url), settings, webshop)
+        return await buy_item_at_amazon(initialize_webdriver(url), settings, webshop)
     elif webshop == 'coolblue':
-        return buy_item_at_coolblue(initialize_webdriver(url), settings)
+        return await buy_item_at_coolblue(initialize_webdriver(url), settings)
     elif webshop == 'bol':
-        return buy_item_at_bol(initialize_webdriver(url), url, settings)
+        return await buy_item_at_bol(initialize_webdriver(url), url, settings)
     elif webshop == 'mediamarkt':
-        return buy_item_at_mediamarkt(initialize_webdriver(url), settings)
+        return await buy_item_at_mediamarkt(initialize_webdriver(url), settings)
     elif webshop == 'nedgame':
-        return buy_item_at_nedgame(initialize_webdriver(url), settings)
+        return await buy_item_at_nedgame(initialize_webdriver(url), settings)
     else:
         console.log("Auto-buy is not implemented for {} yet.".format(webshop))
         return False
 
 
-def buy_item_at_amazon(driver, settings, webshop):
+async def buy_item_at_amazon(driver, settings, webshop):
     """
     Function that will buy the item from the Amazon webshop.
 
@@ -587,7 +598,7 @@ def buy_item_at_amazon(driver, settings, webshop):
         return False
 
 
-def buy_item_at_coolblue(driver, settings):
+async def buy_item_at_coolblue(driver, settings):
     """
     Function that will buy the item from the COOLBLUE webshop.
 
@@ -629,7 +640,6 @@ def buy_item_at_coolblue(driver, settings):
                                                         'shopping-cart-item__remove-button').get_attribute('href')
                     except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
                         continue
-                    print(title)
                     if "playstation" not in str.lower(title) or "ps5" not in str.lower(title):
                         driver.get(remove_href)
                         if len(driver.find_elements(By.CLASS_NAME, 'js-shopping-cart-item')) == 1:
@@ -654,19 +664,19 @@ def buy_item_at_coolblue(driver, settings):
             WDW(driver, 10).until(EC.presence_of_element_located(
                 (By.XPATH, "//*[@id='main-content']/div/div[4]/div/div/div[1]/div[2]/button"))).click()
         else:
-            print("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
+            console.log("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
         driver.close()
         driver.quit()
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[ Something went wrong while trying to order at Amazon ]")
+        console.log("[ Something went wrong while trying to order at Amazon ]")
         driver.close()
         driver.quit()
         return False
 
 
-def buy_item_at_bol(driver, url, settings):
+async def buy_item_at_bol(driver, url, settings):
     """
     Function that will buy the item from the BOL.COM webshop.
 
@@ -720,23 +730,23 @@ def buy_item_at_bol(driver, url, settings):
                 WDW(driver, 10).until(EC.presence_of_element_located(
                     (By.XPATH, '//*[@id="paymentsuggestions"]/div/div[2]/div/div/ul/div[1]/div'))).click()
             except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
-                print("Afterpay not available. Aborting.")
+                console.log("Afterpay not available. Aborting.")
             # confirm
             driver.find_element(By.XPATH, '//*[@id="executepayment"]/form/div/button').click()
         else:
-            print("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
+            console.log("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
         driver.close()
         driver.quit()
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[ Something went wrong while trying to order at BOL.COM ]")
+        console.log("[ Something went wrong while trying to order at BOL.COM ]")
         driver.close()
         driver.quit()
         return False
 
 
-def buy_item_at_mediamarkt(driver, settings):
+async def buy_item_at_mediamarkt(driver, settings):
     """
     Function that will buy the item from the Mediamarkt webshop.
 
@@ -798,20 +808,20 @@ def buy_item_at_mediamarkt(driver, settings):
         if in_production:
             WDW(driver, 10).until(EC.presence_of_element_located((By.ID, 'confirmButtonTop'))).click()
         else:
-            print("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
+            console.log("[ Confirmation of order prevented. Application not in production ] [ See config.ini ]")
         # QUIT
         driver.close()
         driver.quit()
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[ Something went wrong while trying to order at Mediamarkt ]")
+        console.log("[ Something went wrong while trying to order at Mediamarkt ]")
         driver.close()
         driver.quit()
         return False
 
 
-def buy_item_at_nedgame(driver, settings):
+async def buy_item_at_nedgame(driver, settings):
     """
     Function that will buy the item from the Nedgame webshop.
 
@@ -846,39 +856,55 @@ def buy_item_at_nedgame(driver, settings):
         return True
     except (SE.NoSuchElementException, SE.ElementNotInteractableException,
             SE.StaleElementReferenceException, SE.TimeoutException) as e:
-        print("[ Something went wrong while trying to order at Nedgame ]")
+        console.log("[ Something went wrong while trying to order at Nedgame ]")
         driver.close()
         driver.quit()
         return False
 
 
-def main():
-    """
-    Function that loops until the 'desired amount of items bought' is reached.
+async def load_proxies():
+    r = requests.get("https://proxy.webshare.io/api/proxy/list/?page=1",
+                     headers={"Authorization": "Token 12ef84112f8778a53ef67d8001ddcd84baf3bdc4"})
+    r_json = r.json()
+    proxy_list = []
+    for item in r_json['results']:
+        proxy_list.append(f'{item["username"]}:{item["password"]}@{item["proxy_address"]}:{item["ports"]["http"]}')
 
-    While that amount is not reached, the function checks whether the item is
-    in stock for every webshop in the locations dictionary. Once an item is in
-    stock, it will proceed to buy this item by calling the `delegate_purchase`
-    function. This function takes the name of the webshop and the url of the
-    item as its arguments.
+    return proxy_list
 
-    Between every check, there is a wait of 30 seconds.
-    """
-    # get settings
-    settings = ask_to_configure_settings()
+
+async def writeContentToFile(place, content):
+    rndm = ''.join(random.choice(string.ascii_lowercase) for i in range(6))
+    try:
+        if not os.path.exists(os.path.dirname(f'content\\{rndm}')):
+            os.makedirs(os.path.dirname(f'content\\{rndm}'))
+
+        with open(f'content\\{rndm}', "w") as f:
+            f.write(content)
+    except Exception:
+        console.log(F"[ ERROR WRITING TO FILE ] [ {place} ]")
+
+
+async def checkUsingSelenium(url):
+    driver = initialize_webdriver(url)
+    WDW(driver, 5).until(EC.presence_of_element_located((By.ID, 'edition_5'))).click()
+    content = driver.page_source
+    driver.close()
+    driver.quit()
+    return content
+
+
+async def scrape_website(settings, place, info, all_proxies):
     user_agent = random.choice(user_agents)
     referer = random.choice(referers)
-    ordered_items = 0
     # loop until desired amount of ordered items is reached
     while True:
-        detected_as_bot = []
-        times_detected_as_bot = 0
-        # ==================================================== #
-        # loop through all web-shops where potentially in stock #
-        # ==================================================== #
-        for place, info in sorted(locations.items(), key=lambda x: random.random()):
+        # if no signal to shut down
+        global global_shutdown_flag
+        if not global_shutdown_flag:
+            detected_as_bot = []
+            times_detected_as_bot = 0
             # generate headers
-            # user_agent = random.choice(user_agents)
             headers = {
                 "User-Agent": user_agent,
                 "Accept-Encoding": "gzip, deflate",
@@ -892,17 +918,26 @@ def main():
                 "Connection": "close", "Upgrade-Insecure-Requests": "1"
             }
             try:
-                content = requests.get(info.get('url'), timeout=5, headers=headers).content.decode('utf-8')
+                if 'amazon de' in place.lower() or 'amazon fr' in place.lower():
+                    proxy = f'http://{random.choice(all_proxies)}'
+                    async with aiohttp.ClientSession(headers=headers) as session:
+                        async with session.get(info.get('url'), timeout=5) as resp:
+                            content = await resp.read()
+                else:
+                    async with aiohttp.ClientSession(headers=headers) as session:
+                        async with session.get(info.get('url'), timeout=5) as resp:
+                            content = await resp.read()
             except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout,
-                    requests.exceptions.ChunkedEncodingError) as e:
+                    requests.exceptions.ChunkedEncodingError, asyncio.exceptions.TimeoutError,
+                    aiohttp.client.ServerDisconnectedError) as e:
                 console.log(f"[ [bold red]REQUEST ERROR[/] ] [ {place} ]")
                 continue
             # ======================================== #
             # item in stock, proceed to try and buy it #
             # ======================================== #
-            if (info.get('detectedAsBotLabel') not in content and
-                    info.get('outOfStockLabel') not in content and
-                    info.get('inStockLabel') in content):
+            if (info.get('detectedAsBotLabel') not in str(content) and
+                    info.get('outOfStockLabel') not in str(content) and
+                    info.get('inStockLabel') in str(content)):
                 console.log(f"[ [bold green]OMG, IN STOCK![/] ] [ {place} ]")
                 # === IF ENABLED, SEND SMS === #
                 if settings.get("sms_notify") and not info.get('inStock'):
@@ -920,30 +955,69 @@ def main():
                     notification.send()
                 # === IF ENABLED, BUY ITEM === #
                 if settings.get("auto_buy"):
-                    ordered_items = auto_buy_item(info, ordered_items, place, settings)
+                    global ordered_items
+                    ordered_items = await auto_buy_item(info, ordered_items, place, settings)
+                    # === SET IN-STOCK TO TRUE === #
+                    info['inStock'] = True
 
-                # === SET IN-STOCK TO TRUE === #
-                info['inStock'] = True
-            elif info.get('detectedAsBotLabel') in content:
-                detected_as_bot.append(place)
+            elif info.get('detectedAsBotLabel') in str(content):
                 console.log(f"[ [bold red]DETECTED AS BOT[/] ] [ {place} ]")
+                detected_as_bot.append(place)
                 times_detected_as_bot += 1
                 # rotate headers stuff
                 user_agent = random.choice(user_agents)
                 referer = random.choice(referers)
-            elif info.get('outOfStockLabel') in content:
+            elif info.get('outOfStockLabel') in str(content):
                 info['inStock'] = False
                 console.log(f"[ OUT OF STOCK ] [ {place} ]")
             else:
                 console.log(f"[ [bold red]ERROR IN PAGE[/] ] [ {place} ]")
-            time.sleep(random.randint(45, 85) / 100.0)
+                await writeContentToFile(place, str(content))
+            await asyncio.sleep(17 + random.randint(55, 85) / 100.0)
+        else:
+            console.log(f"[ [bold red]SHUTTING DOWN[/] ] [ {place} ]")
+            break
 
-        # print report
-        print('\n')
-        console.log(f"Total requests: [bold red]{len(locations)}[/]. Amount of times detected as bot: "
-                    f"[bold red]{times_detected_as_bot}[/].\nFor pages: [bold red]{detected_as_bot}\n")
+
+async def main():
+    """
+    Function that loops until the 'desired amount of items bought' is reached.
+
+    While that amount is not reached, the function checks whether the item is
+    in stock for every webshop in the locations dictionary. Once an item is in
+    stock, it will proceed to buy this item by calling the `delegate_purchase`
+    function. This function takes the name of the webshop and the url of the
+    item as its arguments.
+
+    Between every check, there is a wait of 30 seconds.
+    """
+    # get settings
+    settings = ask_to_configure_settings()
+
+    # shuffle the webshop dictionary
+    keys = list(locations.keys())
+    random.shuffle(keys)
+    shuffled_locations = dict()
+
+    # load the proxies
+    proxies = await load_proxies()
+    console.log(proxies)
+
+    # create the tasks for asyncio
+    tasks = []
+    for key in keys:
+        shuffled_locations.update({key: locations[key]})
+    for place, info in shuffled_locations.items():
+        info = locations[place]
+        tasks.append(
+            asyncio.create_task(
+                scrape_website(settings, place, info, proxies)
+            )
+        )
+    # collect tasks
+    await asyncio.gather(*tasks)
 
 
 # start of program
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
