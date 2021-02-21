@@ -105,20 +105,20 @@ locations = {
     #     'inStockLabel': "submit.add-to-cart-announce",
     #     'outOfStockLabel': "Actuellement indisponible",
     #     'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
-    'Amazon ES Disk': {
-        'webshop': 'amazon-es',
-        'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5/dp/B08KKJ37F7',
-        'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "No disponible",
-        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
-    'Amazon ES Digital': {
-        'webshop': 'amazon-es',
-        'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5-Digital/dp/B08KJF2D25',
-        'inStock': False,
-        'inStockLabel': "submit.add-to-cart-announce",
-        'outOfStockLabel': "No disponible",
-        'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    # 'Amazon ES Disk': {
+    #     'webshop': 'amazon-es',
+    #     'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5/dp/B08KKJ37F7',
+    #     'inStock': False,
+    #     'inStockLabel': "submit.add-to-cart-announce",
+    #     'outOfStockLabel': "No disponible",
+    #     'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
+    # 'Amazon ES Digital': {
+    #     'webshop': 'amazon-es',
+    #     'url': 'https://www.amazon.es/Playstation-Consola-PlayStation-5-Digital/dp/B08KJF2D25',
+    #     'inStock': False,
+    #     'inStockLabel': "submit.add-to-cart-announce",
+    #     'outOfStockLabel': "No disponible",
+    #     'detectedAsBotLabel': "please contact api-services-support@amazon.com"},
     # 'Amazon DE Disk': {
     #     'webshop': 'amazon-de',
     #     'url': 'https://www.amazon.de/-/de/dp/B08H93ZRK9/',
@@ -217,13 +217,6 @@ locations = {
         'inStockLabel': "AddToCartOverlay",
         'outOfStockLabel': "Niet beschikbaar",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
-    # 'INTERTOYS Disk': {
-    #     'webshop': 'intertoys',
-    #     'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-825gb',
-    #     'inStock': False,
-    #     'inStockLabel': "productPageAdd2Cart",
-    #     'outOfStockLabel': "uitverkocht!",
-    #     'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'INTERTOYS Digital': {
         'webshop': 'intertoys',
         'url': 'https://www.intertoys.nl/shop/nl/intertoys/ps5-digital-edition-825gb',
@@ -231,16 +224,16 @@ locations = {
         'inStockLabel': "productPageAdd2Cart",
         'outOfStockLabel': "uitverkocht!",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
-    'NEDGAME Disk': {
+    'NEDGAME Disk bundle': {
         'webshop': 'nedgame',
-        'url': 'https://www.nedgame.nl/playstation-5/playstation-5--levering-begin-2021-/6036644854/',
+        'url': 'https://www.nedgame.nl/playstation-5/playstation-5-disc-version-bundel/9820628451/',
         'inStock': False,
         'inStockLabel': "AddProductToBasket",
         'outOfStockLabel': "Uitverkocht",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
-    'NEDGAME Digital': {
+    'NEDGAME Digital bundle': {
         'webshop': 'nedgame',
-        'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition--levering-begin-2021-/9647865079/',
+        'url': 'https://www.nedgame.nl/playstation-5/playstation-5-digital-edition-bundel/6481373393/',
         'inStock': False,
         'inStockLabel': "AddProductToBasket",
         'outOfStockLabel': "Uitverkocht",
@@ -936,7 +929,7 @@ def main():
                 console.log(f"[ OUT OF STOCK ] [ {place} ]")
             else:
                 console.log(f"[ [bold red]ERROR IN PAGE[/] ] [ {place} ]")
-            time.sleep(random.randint(45, 85) / 100.0)
+            time.sleep(random.randint(45, 75) / 100.0)
 
         # print report
         print('\n')
