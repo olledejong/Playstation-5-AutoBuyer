@@ -47,7 +47,7 @@ in_production = parser.getboolean("developer", "production")
 notification = Notify()
 console = Console()
 
-with open('resources\\user-agents.txt') as f:
+with open('resources/user-agents.txt') as f:
     user_agents = f.read().splitlines()
     f.close()
 
