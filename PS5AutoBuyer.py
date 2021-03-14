@@ -193,15 +193,15 @@ locations = {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
-        'inStockLabel': "online online-ndd",
-        'outOfStockLabel': "Online uitverkocht",
+        'inStockLabel': "label-instock",
+        'outOfStockLabel': "offline-icon",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'MEDIAMARKT Digital': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
         'inStock': False,
-        'inStockLabel': "online online-ndd",
-        'outOfStockLabel': "Online uitverkocht",
+        'inStockLabel': "label-instock",
+        'outOfStockLabel': "offline-icon",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'GAMEMANIA Disk': {
         'webshop': 'gamemania',
@@ -686,7 +686,7 @@ def buy_item_at_bol(driver, url, settings):
         # LOGIC FOR REGULAR ORDER / PREORDER
         try:
             driver.find_element(By.LINK_TEXT, 'Reserveer nu').click()
-        except SE.NoSuchElementException as e:
+        except SE.NoSuchElementException:
             driver.find_element(By.LINK_TEXT, 'In winkelwagen').click()
         driver.get('https://www.bol.com/nl/order/basket.html')
         # CHECK CART FOR OTHER ITEMS AND DELETE THESE
@@ -711,7 +711,7 @@ def buy_item_at_bol(driver, url, settings):
         if in_production:
             try:
                 WDW(driver, 10).until(EC.presence_of_element_located(
-                    (By.XPATH, '//*[@id="paymentsuggestions"]/div/div[2]/div/div/ul/div[1]/div'))).click()
+                    (By.XPATH, '//SECTION[@id="paymentsuggestions"]//H3/SPAN[contains(text(), "Achteraf")]/../../parent::DIV'))).click()
             except (SE.NoSuchElementException, SE.StaleElementReferenceException) as e:
                 print("Afterpay not available. Aborting.")
             # confirm
