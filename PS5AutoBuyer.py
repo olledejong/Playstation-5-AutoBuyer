@@ -193,14 +193,14 @@ locations = {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-disk-edition-1664768.html',
         'inStock': False,
-        'inStockLabel': "label-instock",
+        'inStockLabel': "Bestel nu",
         'outOfStockLabel': "offline-icon",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'MEDIAMARKT Digital': {
         'webshop': 'mediamarkt',
         'url': 'https://www.mediamarkt.nl/nl/product/_sony-playstation-5-digital-edition-1665134.html',
         'inStock': False,
-        'inStockLabel': "label-instock",
+        'inStockLabel': "Bestel nu",
         'outOfStockLabel': "offline-icon",
         'detectedAsBotLabel': "detectedAsBotPlaceholderLabel"},
     'GAMEMANIA Disk': {
