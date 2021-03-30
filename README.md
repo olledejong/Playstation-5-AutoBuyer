@@ -1,5 +1,7 @@
 # Playstation 5 AutoBuyer | The Netherlands only
 
+### ! Autobuy functionality hardly worka anymore. I don't have the time to fix this any time soon !
+
 ![](resources/cli.PNG)
 
 *Please note; usage of tools like this to gain an advantage over other customers is not ethically right.*
